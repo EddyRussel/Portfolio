@@ -1,5 +1,7 @@
 # Portfolio professionnel – Socle de départ
 
+Réalisé par Eddy Russel
+
 Stack : React (Vite) · Express · TypeScript · PostgreSQL · Redis · Docker
 
 ## Démarrage
