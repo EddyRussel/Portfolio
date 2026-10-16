@@ -17,7 +17,7 @@ function Home() {
 
   return (
     <main style={{ fontFamily: "sans-serif", maxWidth: 720, margin: "2rem auto" }}>
-      <h1>Portfolio professionnel</h1>
+      <h1>Portfolio professionnel de Eddy Russel </h1>
       <p>Socle de départ : React + Vite + Express + PostgreSQL + Redis.</p>
       <h2>État des services</h2>
       <pre>{JSON.stringify(health, null, 2)}</pre>
