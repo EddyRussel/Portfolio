@@ -1,6 +1,10 @@
 import { useEffect, useState } from "react";
 import { Routes, Route, Link } from "react-router-dom";
 import PublicPortfolio from "./PublicPortfolio";
+import Login from "./pages/Login";
+import Register from "./pages/Register";
+import Dashboard from "./pages/Dashboard";
+import RequireAuth from "./RequireAuth";
 
 const API_URL = import.meta.env.VITE_API_URL ?? "http://localhost:3000";
 
@@ -24,6 +28,8 @@ function Home() {
             <pre>{JSON.stringify(health, null, 2)}</pre>
             <p>
                 <Link to="/p/eddy-russel-ngoue">Voir mon portfolio</Link>
+                {" · "}
+                <Link to="/login">Se connecter</Link>
             </p>
         </main>
     );
@@ -34,7 +40,17 @@ export default function App() {
         <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/p/:slug" element={<PublicPortfolio />} />
-            {/* TODO : /login, /register, /dashboard */}
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
+            {/* Page protégée : RequireAuth redirige vers /login si on n'est pas connecté */}
+            <Route
+                path="/dashboard"
+                element={
+                    <RequireAuth>
+                        <Dashboard />
+                    </RequireAuth>
+                }
+            />
         </Routes>
     );
 }

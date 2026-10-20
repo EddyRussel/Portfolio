@@ -1,0 +1,176 @@
+/* Pages de connexion, d'inscription et tableau de bord (même thème que le portfolio) */
+@import url("https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,800&family=JetBrains+Mono:wght@400;600&display=swap");
+
+.auth-page,
+.dash {
+    --bg: #0f1424;
+    --surface: #171e33;
+    --line: #273150;
+    --text: #e8ebf4;
+    --muted: #98a2bf;
+    --accent: #f2b544;
+    --accent-ink: #1a1405;
+    --danger: #ff8a80;
+
+    min-height: 100vh;
+    background: var(--bg);
+    color: var(--text);
+    font-family: "Bricolage Grotesque", system-ui, sans-serif;
+    line-height: 1.6;
+}
+body {
+    margin: 0;
+}
+
+/* ---------- Formulaires ---------- */
+.auth-page {
+    display: grid;
+    place-items: center;
+    padding: 24px 16px;
+}
+.auth-card {
+    width: 100%;
+    max-width: 400px;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 36px 32px;
+    display: flex;
+    flex-direction: column;
+}
+.auth-card h1 {
+    margin: 0;
+    font-size: 2rem;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+}
+.auth-intro {
+    margin: 6px 0 24px;
+    color: var(--muted);
+}
+.auth-card label {
+    margin-top: 14px;
+    font-weight: 600;
+    font-size: 0.95rem;
+}
+.auth-card input {
+    margin-top: 6px;
+    padding: 11px 12px;
+    font: inherit;
+    color: var(--text);
+    background: var(--bg);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+}
+.auth-card input:focus {
+    outline: 2px solid var(--accent);
+    outline-offset: 1px;
+    border-color: transparent;
+}
+.auth-hint {
+    margin: 6px 0 0;
+    font-size: 0.85rem;
+    color: var(--muted);
+}
+.auth-card button {
+    margin-top: 26px;
+    padding: 12px;
+    font: inherit;
+    font-weight: 600;
+    color: var(--accent-ink);
+    background: var(--accent);
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+}
+.auth-card button:disabled {
+    opacity: 0.6;
+    cursor: wait;
+}
+.auth-card button:focus-visible,
+.auth-page a:focus-visible,
+.dash :focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 3px;
+}
+.auth-error {
+    margin: 0 0 6px;
+    padding: 10px 12px;
+    border: 1px solid var(--danger);
+    border-radius: 8px;
+    color: var(--danger);
+    background: rgba(255, 138, 128, 0.08);
+}
+.auth-switch {
+    margin: 22px 0 0;
+    text-align: center;
+    color: var(--muted);
+}
+.auth-page a {
+    color: var(--accent);
+}
+
+/* ---------- Tableau de bord ---------- */
+.dash-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 14px 24px;
+    border-bottom: 1px solid var(--line);
+}
+.dash-logo {
+    font-family: "JetBrains Mono", monospace;
+    color: var(--accent);
+}
+.dash-logout {
+    font: inherit;
+    color: var(--text);
+    background: none;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 7px 14px;
+    cursor: pointer;
+}
+.dash-main {
+    max-width: 820px;
+    margin: 0 auto;
+    padding: 48px 24px;
+}
+.dash-main h1 {
+    margin: 0;
+    font-size: clamp(2rem, 5vw, 2.8rem);
+    font-weight: 800;
+    letter-spacing: -0.02em;
+}
+.dash-card {
+    margin-top: 24px;
+    padding: 24px;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+}
+.dash-card h2 {
+    margin: 0 0 8px;
+    font-size: 1.2rem;
+}
+.dash-card p {
+    margin: 0;
+    color: var(--muted);
+}
+.dash-card code {
+    font-family: "JetBrains Mono", monospace;
+    color: var(--text);
+}
+.dash-link {
+    display: inline-block;
+    margin-top: 16px;
+    padding: 9px 16px;
+    border-radius: 8px;
+    background: var(--accent);
+    color: var(--accent-ink);
+    font-weight: 600;
+    text-decoration: none;
+}
+.dash-todo {
+    border-style: dashed;
+}
