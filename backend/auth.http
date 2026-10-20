@@ -1,0 +1,39 @@
+### Tests de l'authentification (cliquer sur ▶ à gauche de chaque requête)
+### WebStorm garde le cookie de session entre les requêtes, comme un navigateur.
+
+### 1. Qui suis-je ? (sans être connecté -> 401)
+GET http://localhost:3000/api/auth/me
+
+### 2. Inscription d'un compte de test
+POST http://localhost:3000/api/auth/register
+Content-Type: application/json
+
+{
+  "full_name": "Compte Test",
+  "email": "test@exemple.com",
+  "password": "motdepasse123"
+}
+
+### 3. Qui suis-je ? (connecté -> 200)
+GET http://localhost:3000/api/auth/me
+
+### 4. Déconnexion
+POST http://localhost:3000/api/auth/logout
+
+### 5. Connexion avec un mauvais mot de passe (-> 401)
+POST http://localhost:3000/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "test@exemple.com",
+  "password": "mauvais"
+}
+
+### 6. Connexion avec ton compte (après avoir défini ton mot de passe)
+POST http://localhost:3000/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "ngouerussel@gmail.com",
+  "password": "REMPLACE_PAR_TON_MOT_DE_PASSE"
+}
