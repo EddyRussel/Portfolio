@@ -92,7 +92,7 @@ INSERT INTO experiences (user_id, position, company, start_date, end_date, descr
 
 -- Formations et certifications
 INSERT INTO education (user_id, degree, school, start_date, end_date, description, sort_order) VALUES
-                                                                                                   ((SELECT id FROM users WHERE slug = 'eddy-russel-ngoue'), 'AEC – Programmeur analyste en techniques de l''information', 'Collège LaSalle, Montréal', '2025-01-01', NULL, 'Obtention prévue en décembre 2026. Formation axée sur le développement logiciel, l''analyse des systèmes d''information et la conception d''applications : Java, C#, Python, SQL, UML et applications multicouches.', 1),
+                                                                                                   ((SELECT id FROM users WHERE slug = 'eddy-russel-ngoue'), 'AEC – Programmeur analyste en techniques de l''information', 'Collège LaSalle, Montréal', '2025-01-01', NULL, 'Fin des études en décembre 2026 (stage inclus), diplôme remis à la collation des grades en mai 2027. Formation axée sur le développement logiciel, l''analyse des systèmes d''information et la conception d''applications : Java, C#, Python, SQL, UML et applications multicouches.', 1),
                                                                                                    ((SELECT id FROM users WHERE slug = 'eddy-russel-ngoue'), 'Certificat professionnel en support informatique de Google', 'Coursera', '2026-01-01', NULL, 'Dépannage informatique, systèmes d''exploitation, réseaux, sécurité et support aux utilisateurs.', 2);
 
 -- Compétences (catégories reprises de mon CV)
@@ -121,4 +121,3 @@ INSERT INTO skills (user_id, name, category, level, sort_order) VALUES
 INSERT INTO projects (user_id, title, description, technologies, sort_order) VALUES
                                                                                  ((SELECT id FROM users WHERE slug = 'eddy-russel-ngoue'), 'Application web de gestion budgétaire intelligente', 'Application de gestion financière personnelle permettant aux étudiants de suivre leurs revenus et dépenses, d''analyser leur budget et de prévoir leurs habitudes financières, en appliquant les principes de programmation orientée objet.', ARRAY['Java', 'Spring Boot', 'HTML5', 'CSS', 'Architecture MVC'], 1),
                                                                                  ((SELECT id FROM users WHERE slug = 'eddy-russel-ngoue'), 'Simulation d''un système d''administration immobilière REMAX', 'Application client-serveur de gestion immobilière avec opérations CRUD et architecture multicouche basée sur ADO.NET.', ARRAY['C#', 'Windows Forms', 'SQL Server', 'ADO.NET', 'Architecture MVC'], 2);
- 
