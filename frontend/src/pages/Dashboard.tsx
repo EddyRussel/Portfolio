@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../auth";
 import ProfileEditor from "../dashboard/ProfileEditor";
 import ResourceEditor from "../dashboard/ResourceEditor";
+import CvBuilder from "../dashboard/CvBuilder";
 import { RESOURCES } from "../dashboard/fields";
 import "../auth.css";
 import "../dashboard.css";
@@ -13,6 +14,7 @@ const TABS = [
   { id: "education", label: "Formations" },
   { id: "skills", label: "Compétences" },
   { id: "projects", label: "Projets" },
+  { id: "cv", label: "Mon CV" },
 ] as const;
 
 type TabId = (typeof TABS)[number]["id"];
@@ -64,6 +66,8 @@ export default function Dashboard() {
           {/* key={tab} : on recrée l'éditeur à chaque changement d'onglet */}
           {tab === "profile" ? (
             <ProfileEditor />
+          ) : tab === "cv" ? (
+            <CvBuilder />
           ) : (
             <ResourceEditor key={tab} config={RESOURCES[tab]} />
           )}
