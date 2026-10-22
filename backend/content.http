@@ -1,0 +1,54 @@
+### Tests de la gestion du contenu (cliquer sur ▶ à gauche de chaque requête, dans l'ordre)
+### Commence par te connecter (requête 0) : WebStorm garde ensuite le cookie.
+
+### 0. Connexion (remplace le mot de passe, puis remets-le comme avant de committer)
+POST http://localhost:3000/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "ngouerussel@gmail.com",
+  "password": "REMPLACE_PAR_TON_MOT_DE_PASSE"
+}
+
+### 1. Mon profil complet
+GET http://localhost:3000/api/profile
+
+### 2. Mes expériences
+GET http://localhost:3000/api/experiences
+
+### 3. Ajouter une expérience de test
+POST http://localhost:3000/api/experiences
+Content-Type: application/json
+
+{
+  "position": "Expérience de test",
+  "company": "Entreprise Test",
+  "start_date": "2026-09",
+  "end_date": "",
+  "description": "À supprimer après le test."
+}
+
+### 4. Ajouter une expérience invalide (-> 400, message d'erreur)
+POST http://localhost:3000/api/experiences
+Content-Type: application/json
+
+{
+  "position": "",
+  "company": "Entreprise Test",
+  "start_date": "2026-13"
+}
+
+### 5. Supprimer l'expérience de test (remplace 5 par l'id renvoyé à la requête 3)
+DELETE http://localhost:3000/api/experiences/5
+
+### 6. Rendre mon portfolio privé, puis va voir /p/eddy-russel-ngoue dans le navigateur
+PATCH http://localhost:3000/api/profile/visibility
+Content-Type: application/json
+
+{ "is_public": false }
+
+### 7. Le rendre public à nouveau
+PATCH http://localhost:3000/api/profile/visibility
+Content-Type: application/json
+
+{ "is_public": true }

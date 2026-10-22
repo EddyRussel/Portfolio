@@ -7,6 +7,8 @@ import { healthRouter } from "./routes/health.js";
 import { publicRouter } from "./routes/public.js";
 import { cvRouter } from "./routes/cv.js";
 import { authRouter } from "./routes/auth.js";
+import { profileRouter } from "./routes/profile.js";
+import { experiencesRouter, educationRouter, skillsRouter, projectsRouter } from "./routes/content.js";
 
 const app = express();
 const port = Number(process.env.PORT ?? 3000);
@@ -22,8 +24,12 @@ app.use("/api/public", publicRouter);
 app.use("/api/cv", cvRouter);
 app.use("/api/auth", authRouter);
 
-// TODO (étudiants) : /api/profile, /api/experiences, /api/education,
-// /api/skills, /api/projects
+// Espace privé : gestion du contenu (toutes ces routes exigent d'être connecté)
+app.use("/api/profile", profileRouter);
+app.use("/api/experiences", experiencesRouter);
+app.use("/api/education", educationRouter);
+app.use("/api/skills", skillsRouter);
+app.use("/api/projects", projectsRouter);
 
 async function start() {
   await connectRedis();
