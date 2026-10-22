@@ -15,6 +15,7 @@ type AuthContextValue = {
     login: (email: string, password: string) => Promise<void>;
     register: (full_name: string, email: string, password: string) => Promise<void>;
     logout: () => Promise<void>;
+    refreshUser: () => Promise<void>; // relit l'utilisateur (après une modification du profil)
 };
 
 // Le "contexte" rend l'utilisateur connecté accessible dans TOUTES les pages,
@@ -46,13 +47,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setUser(data.user);
     }
 
+    async function refreshUser() {
+        const data = await api<{ user: User }>("/api/auth/me");
+        setUser(data.user);
+    }
+
     async function logout() {
         await api("/api/auth/logout", { method: "POST" });
         setUser(null);
     }
 
     return (
-        <AuthContext.Provider value={{ user, loading, login, register, logout }}>{children}</AuthContext.Provider>
+        <AuthContext.Provider value={{ user, loading, login, register, logout, refreshUser }}>{children}</AuthContext.Provider>
     );
 }
 
@@ -62,3 +68,4 @@ export function useAuth(): AuthContextValue {
     if (!context) throw new Error("useAuth doit être utilisé à l'intérieur de <AuthProvider>");
     return context;
 }
+ 
