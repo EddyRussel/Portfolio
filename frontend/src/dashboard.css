@@ -55,6 +55,9 @@
   background: rgba(242, 181, 68, 0.1);
   font-weight: 600;
 }
+.dash-content {
+  min-width: 0; /* sans ça, un contenu large (graphique) ferait déborder toute la page */
+}
 .dash-content h1 {
   margin: 0 0 24px;
   font-size: 2rem;
@@ -517,4 +520,201 @@
 .btn-delete:not(:disabled):hover {
   background: var(--danger);
   color: #2a0b08;
+}
+
+/* ==========================================================
+   CV pour les visiteurs (téléversement)
+   ========================================================== */
+.cv-file {
+  padding: 20px 22px;
+  margin-bottom: 36px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+}
+.cv-file-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+  margin-bottom: 14px;
+}
+.cv-file h2,
+.cv-builder-title {
+  margin: 0;
+  font-size: 1.2rem;
+}
+.cv-file-head .muted {
+  margin: 4px 0 0;
+  max-width: 60ch;
+}
+.cv-file-current {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  padding: 12px 14px;
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+}
+.cv-file-current a.btn-ghost {
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+}
+.cv-file .btn-add {
+  margin-top: 0;
+}
+.cv-builder-title {
+  margin-bottom: 16px;
+}
+.cv-publish {
+  width: 100%;
+  padding: 11px !important;
+  margin-bottom: 14px;
+}
+@media (max-width: 760px) {
+  .cv-file-current {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}
+
+/* ==========================================================
+   Onglet "Statistiques"
+   ========================================================== */
+.stat-tiles {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  margin-bottom: 28px;
+}
+.stat-tile {
+  display: flex;
+  flex-direction: column;
+  padding: 16px 18px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+}
+.stat-tile strong {
+  font-size: 2.2rem;
+  font-weight: 800;
+  line-height: 1.1;
+  margin: 4px 0 2px;
+}
+.stat-label {
+  font-weight: 600;
+  font-size: 0.92rem;
+}
+.stat-hint {
+  color: var(--muted);
+  font-size: 0.82rem;
+}
+.stats-chart-block {
+  padding: 20px 22px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  margin-bottom: 16px;
+}
+.stats-chart-block h2 {
+  margin: 0 0 12px;
+  font-size: 1.1rem;
+}
+.chart-scroll {
+  overflow-x: auto;
+  padding-top: 90px; /* place pour l'infobulle au-dessus des barres */
+  margin-top: -90px;
+}
+.chart {
+  position: relative;
+  min-width: 560px;
+}
+.chart svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+.chart-grid {
+  stroke: var(--line);
+  stroke-width: 1;
+  opacity: 0.6;
+}
+.chart-axis {
+  stroke: var(--muted);
+  stroke-width: 1;
+  opacity: 0.5;
+}
+.chart-tick {
+  fill: var(--muted);
+  font-size: 11px;
+  font-family: inherit;
+}
+.chart-bar {
+  fill: #d99a32;
+  transition: fill 0.15s;
+}
+.chart-bar.is-hovered {
+  fill: var(--accent);
+}
+.chart-tooltip {
+  position: absolute;
+  top: 0;
+  transform: translate(-50%, -100%);
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  padding: 8px 12px;
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  font-size: 0.85rem;
+  white-space: nowrap;
+  pointer-events: none;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.35);
+}
+.chart-tooltip span {
+  color: var(--muted);
+}
+.stats-table {
+  margin-bottom: 16px;
+}
+.stats-table summary {
+  cursor: pointer;
+  color: var(--accent);
+  padding: 6px 0;
+}
+.stats-table table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 8px;
+  font-size: 0.9rem;
+}
+.stats-table th,
+.stats-table td {
+  text-align: left;
+  padding: 7px 10px;
+  border-bottom: 1px solid var(--line);
+}
+.stats-table th {
+  color: var(--muted);
+  font-weight: 600;
+}
+.stats-table td:not(:first-child),
+.stats-table th:not(:first-child) {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+@media (max-width: 760px) {
+  .stat-tiles {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .chart-bar {
+    transition: none;
+  }
 }

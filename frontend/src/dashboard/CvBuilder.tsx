@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { api, API_URL } from "../api";
+import { uploadCvFile } from "./CvFileManager";
 
 // ---------------------------------------------------------------------------
 // Écran "Mon CV" : choisir le gabarit (RF-21), les sections et les éléments (RF-22),
@@ -53,7 +54,7 @@ async function fetchPdf(mode: "preview" | "download", options: Options) {
   return { blob: await response.blob(), fileName, cached: response.headers.get("X-CV-Cache") === "HIT" };
 }
 
-export default function CvBuilder() {
+export default function CvBuilder({ onPublished }: { onPublished: () => void }) {
   const [data, setData] = useState<CvData | null>(null);
   const [options, setOptions] = useState<Options>({
     template: "modern",
@@ -64,6 +65,8 @@ export default function CvBuilder() {
   const [cached, setCached] = useState(false);
   const [loadingPreview, setLoadingPreview] = useState(false);
   const [downloading, setDownloading] = useState(false);
+  const [publishing, setPublishing] = useState(false);
+  const [published, setPublished] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const previousUrl = useRef<string | null>(null);
 
@@ -111,6 +114,23 @@ export default function CvBuilder() {
       setError((err as Error).message);
     } finally {
       setDownloading(false);
+    }
+  }
+
+  // Publie le CV généré comme "CV pour les visiteurs" du portfolio
+  async function publish() {
+    setPublishing(true);
+    setError(null);
+    setPublished(false);
+    try {
+      const { blob, fileName } = await fetchPdf("download", options);
+      await uploadCvFile(blob, fileName);
+      setPublished(true);
+      onPublished();
+    } catch (err) {
+      setError((err as Error).message);
+    } finally {
+      setPublishing(false);
     }
   }
 
@@ -195,6 +215,14 @@ export default function CvBuilder() {
         <button className="btn-primary cv-download" onClick={download} disabled={downloading}>
           {downloading ? "Préparation…" : "Télécharger mon CV (PDF)"}
         </button>
+        <button className="btn-ghost cv-publish" onClick={publish} disabled={publishing}>
+          {publishing ? "Publication…" : "Publier ce CV sur mon portfolio"}
+        </button>
+        {published && (
+          <p className="alert alert-ok" role="status">
+            CV publié : les visiteurs peuvent maintenant le télécharger.
+          </p>
+        )}
         {error && (
           <p className="alert alert-error" role="alert">
             {error}
