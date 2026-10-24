@@ -477,3 +477,44 @@
     height: 70vh;
   }
 }
+
+/* ==========================================================
+   Onglet "Compte"
+   ========================================================== */
+.account {
+  display: grid;
+  gap: 28px;
+  max-width: 680px;
+}
+.account-block {
+  padding: 24px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+}
+.account-block h2 {
+  margin: 0;
+  font-size: 1.2rem;
+}
+.account-block > .muted {
+  margin: 4px 0 18px;
+}
+.account-danger {
+  border-color: rgba(255, 138, 128, 0.45);
+}
+.account-delete-field {
+  max-width: 340px;
+  margin-bottom: 16px;
+}
+.btn-delete {
+  background: none;
+  color: var(--danger);
+  border: 1px solid var(--danger);
+  border-radius: 8px;
+  padding: 10px 16px;
+  font-weight: 600 !important;
+}
+.btn-delete:not(:disabled):hover {
+  background: var(--danger);
+  color: #2a0b08;
+}

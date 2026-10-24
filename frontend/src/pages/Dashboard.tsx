@@ -4,6 +4,7 @@ import { useAuth } from "../auth";
 import ProfileEditor from "../dashboard/ProfileEditor";
 import ResourceEditor from "../dashboard/ResourceEditor";
 import CvBuilder from "../dashboard/CvBuilder";
+import AccountSettings from "../dashboard/AccountSettings";
 import { RESOURCES } from "../dashboard/fields";
 import "../auth.css";
 import "../dashboard.css";
@@ -15,6 +16,7 @@ const TABS = [
   { id: "skills", label: "Compétences" },
   { id: "projects", label: "Projets" },
   { id: "cv", label: "Mon CV" },
+  { id: "account", label: "Compte" },
 ] as const;
 
 type TabId = (typeof TABS)[number]["id"];
@@ -68,6 +70,8 @@ export default function Dashboard() {
             <ProfileEditor />
           ) : tab === "cv" ? (
             <CvBuilder />
+          ) : tab === "account" ? (
+            <AccountSettings />
           ) : (
             <ResourceEditor key={tab} config={RESOURCES[tab]} />
           )}
