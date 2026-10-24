@@ -8,6 +8,7 @@ import { publicRouter } from "./routes/public.js";
 import { cvRouter } from "./routes/cv.js";
 import { authRouter } from "./routes/auth.js";
 import { profileRouter } from "./routes/profile.js";
+import { accountRouter } from "./routes/account.js";
 import { experiencesRouter, educationRouter, skillsRouter, projectsRouter } from "./routes/content.js";
 
 const app = express();
@@ -26,6 +27,7 @@ app.use("/api/auth", authRouter);
 
 // Espace privé : gestion du contenu (toutes ces routes exigent d'être connecté)
 app.use("/api/profile", profileRouter);
+app.use("/api/account", accountRouter);
 app.use("/api/experiences", experiencesRouter);
 app.use("/api/education", educationRouter);
 app.use("/api/skills", skillsRouter);
