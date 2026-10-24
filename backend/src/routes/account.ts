@@ -5,6 +5,7 @@ import { pool } from "../db.js";
 import { redis } from "../redis.js";
 import { requireAuth } from "../middleware/requireAuth.js";
 import { destroyUserSessions, SESSION_COOKIE } from "../session.js";
+import { purgeStats } from "../visitStats.js";
 
 export const accountRouter = Router();
 accountRouter.use(requireAuth);
@@ -56,7 +57,10 @@ accountRouter.delete("/", async (req, res) => {
   const { rows } = await pool.query("DELETE FROM users WHERE id = $1 RETURNING slug", [userId]);
 
   // 2. Redis : on efface aussi tout ce qui le concerne (cache du portfolio, CV, sessions)
-  if (rows[0]) await redis.del(`portfolio:${rows[0].slug}`);
+  if (rows[0]) {
+    await redis.del(`portfolio:${rows[0].slug}`);
+    await purgeStats(rows[0].slug);
+  }
   for await (const cvKey of redis.scanIterator({ MATCH: `cv:${userId}:*` })) {
     await redis.del(cvKey);
   }

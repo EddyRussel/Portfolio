@@ -17,7 +17,7 @@ const MAX_SIZE = 5 * 1024 * 1024; // 5 Mo
 cvFileRouter.get("/", async (_req, res) => {
   const { rows } = await pool.query(
     "SELECT file_name, size_bytes, is_public, uploaded_at FROM cv_files WHERE user_id = $1",
-    [res.locals.userId]
+    [res.locals.userId],
   );
   res.json(rows[0] ?? null);
 });
@@ -35,11 +35,16 @@ cvFileRouter.put(
     }
     // Un vrai PDF commence toujours par "%PDF-" : on ne se fie pas seulement à l'extension
     if (file.subarray(0, 5).toString("latin1") !== "%PDF-") {
-      return res.status(400).json({ error: "Ce fichier n'est pas un PDF valide." });
+      return res
+        .status(400)
+        .json({ error: "Ce fichier n'est pas un PDF valide." });
     }
 
-    const rawName = decodeURIComponent(String(req.headers["x-file-name"] ?? "CV.pdf"));
-    const fileName = rawName.replace(/[^\p{L}\p{N} ._-]/gu, "").slice(0, 150) || "CV.pdf";
+    const rawName = decodeURIComponent(
+      String(req.headers["x-file-name"] ?? "CV.pdf"),
+    );
+    const fileName =
+      rawName.replace(/[^\p{L}\p{N} ._-]/gu, "").slice(0, 150) || "CV.pdf";
 
     // INSERT ... ON CONFLICT : un seul CV par utilisateur, le nouveau remplace l'ancien
     const { rows } = await pool.query(
@@ -49,39 +54,52 @@ cvFileRouter.put(
          SET file_name = EXCLUDED.file_name, size_bytes = EXCLUDED.size_bytes,
              data = EXCLUDED.data, uploaded_at = NOW()
        RETURNING file_name, size_bytes, is_public, uploaded_at`,
-      [res.locals.userId, fileName, file.length, file]
+      [res.locals.userId, fileName, file.length, file],
     );
     await invalidatePortfolio(res.locals.userId);
     res.json(rows[0]);
-  }
+  },
 );
 
 // PATCH /api/cv-file : autoriser ou non le téléchargement par les visiteurs
 cvFileRouter.patch("/", async (req, res) => {
   const parsed = z.object({ is_public: z.boolean() }).safeParse(req.body);
-  if (!parsed.success) return res.status(400).json({ error: "Valeur invalide." });
+  if (!parsed.success)
+    return res.status(400).json({ error: "Valeur invalide." });
 
   const { rows } = await pool.query(
     `UPDATE cv_files SET is_public = $1 WHERE user_id = $2
      RETURNING file_name, size_bytes, is_public, uploaded_at`,
-    [parsed.data.is_public, res.locals.userId]
+    [parsed.data.is_public, res.locals.userId],
   );
-  if (rows.length === 0) return res.status(404).json({ error: "Aucun CV téléversé." });
+  if (rows.length === 0)
+    return res.status(404).json({ error: "Aucun CV téléversé." });
   await invalidatePortfolio(res.locals.userId);
   res.json(rows[0]);
 });
 
 // DELETE /api/cv-file : supprimer mon CV téléversé
 cvFileRouter.delete("/", async (_req, res) => {
-  await pool.query("DELETE FROM cv_files WHERE user_id = $1", [res.locals.userId]);
+  await pool.query("DELETE FROM cv_files WHERE user_id = $1", [
+    res.locals.userId,
+  ]);
   await invalidatePortfolio(res.locals.userId);
   res.status(204).end();
 });
 
 // Erreur "fichier trop gros" levée par express.raw
-cvFileRouter.use((err: { type?: string }, _req: express.Request, res: express.Response, next: express.NextFunction) => {
-  if (err?.type === "entity.too.large") {
-    return res.status(413).json({ error: "Fichier trop volumineux (5 Mo maximum)." });
-  }
-  next(err);
-});
+cvFileRouter.use(
+  (
+    err: { type?: string },
+    _req: express.Request,
+    res: express.Response,
+    next: express.NextFunction,
+  ) => {
+    if (err?.type === "entity.too.large") {
+      return res
+        .status(413)
+        .json({ error: "Fichier trop volumineux (5 Mo maximum)." });
+    }
+    next(err);
+  },
+);

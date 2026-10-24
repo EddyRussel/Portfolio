@@ -11,46 +11,48 @@ const API_URL = import.meta.env.VITE_API_URL ?? "http://localhost:3000";
 type Health = { status: string; postgres?: string; redis?: string };
 
 function Home() {
-    const [health, setHealth] = useState<Health | null>(null);
+  const [health, setHealth] = useState<Health | null>(null);
 
-    useEffect(() => {
-        fetch(`${API_URL}/api/health`)
-            .then((r) => r.json())
-            .then(setHealth)
-            .catch(() => setHealth({ status: "error" }));
-    }, []);
+  useEffect(() => {
+    fetch(`${API_URL}/api/health`)
+      .then((r) => r.json())
+      .then(setHealth)
+      .catch(() => setHealth({ status: "error" }));
+  }, []);
 
-    return (
-        <main style={{ fontFamily: "sans-serif", maxWidth: 720, margin: "2rem auto" }}>
-            <h1>Portfolio de Eddy Russel</h1>
-            <p>Socle de départ : React + Vite + Express + PostgreSQL + Redis.</p>
-            <h2>État des services</h2>
-            <pre>{JSON.stringify(health, null, 2)}</pre>
-            <p>
-                <Link to="/p/eddy-russel-ngoue">Voir mon portfolio</Link>
-                {" · "}
-                <Link to="/login">Se connecter</Link>
-            </p>
-        </main>
-    );
+  return (
+    <main
+      style={{ fontFamily: "sans-serif", maxWidth: 720, margin: "2rem auto" }}
+    >
+      <h1>Portfolio de Eddy Russel</h1>
+      <p>Socle de départ : React + Vite + Express + PostgreSQL + Redis.</p>
+      <h2>État des services</h2>
+      <pre>{JSON.stringify(health, null, 2)}</pre>
+      <p>
+        <Link to="/p/eddy-russel-ngoue">Voir mon portfolio</Link>
+        {" · "}
+        <Link to="/login">Se connecter</Link>
+      </p>
+    </main>
+  );
 }
 
 export default function App() {
-    return (
-        <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/p/:slug" element={<PublicPortfolio />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/register" element={<Register />} />
-            {/* Page protégée : RequireAuth redirige vers /login si on n'est pas connecté */}
-            <Route
-                path="/dashboard"
-                element={
-                    <RequireAuth>
-                        <Dashboard />
-                    </RequireAuth>
-                }
-            />
-        </Routes>
-    );
+  return (
+    <Routes>
+      <Route path="/" element={<Home />} />
+      <Route path="/p/:slug" element={<PublicPortfolio />} />
+      <Route path="/login" element={<Login />} />
+      <Route path="/register" element={<Register />} />
+      {/* Page protégée : RequireAuth redirige vers /login si on n'est pas connecté */}
+      <Route
+        path="/dashboard"
+        element={
+          <RequireAuth>
+            <Dashboard />
+          </RequireAuth>
+        }
+      />
+    </Routes>
+  );
 }

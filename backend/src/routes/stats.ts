@@ -19,7 +19,7 @@ statsRouter.get("/", async (_req, res) => {
        FROM generate_series($2::date - 29, $2::date, interval '1 day') AS d(day)
        LEFT JOIN visit_stats s ON s.day = d.day AND s.user_id = $1
       ORDER BY d.day`,
-    [res.locals.userId, today()]
+    [res.locals.userId, today()],
   );
 
   const sum = (key: "views" | "unique_visitors" | "cv_downloads") =>
@@ -27,6 +27,10 @@ statsRouter.get("/", async (_req, res) => {
 
   res.json({
     days: rows,
-    totals: { views: sum("views"), unique_visitors: sum("unique_visitors"), cv_downloads: sum("cv_downloads") },
+    totals: {
+      views: sum("views"),
+      unique_visitors: sum("unique_visitors"),
+      cv_downloads: sum("cv_downloads"),
+    },
   });
 });

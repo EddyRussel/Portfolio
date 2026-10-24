@@ -15,14 +15,18 @@ publicRouter.get("/:slug/cv", async (req, res) => {
     `SELECT cv.file_name, cv.data
        FROM cv_files cv JOIN users u ON u.id = cv.user_id
       WHERE u.slug = $1 AND u.is_public = TRUE AND cv.is_public = TRUE`,
-    [req.params.slug]
+    [req.params.slug],
   );
-  if (rows.length === 0) return res.status(404).json({ error: "CV non disponible." });
+  if (rows.length === 0)
+    return res.status(404).json({ error: "CV non disponible." });
   recordCvDownload(req, req.params.slug).catch(console.error); // statistiques (sans faire attendre le visiteur)
 
   res.setHeader("Content-Type", "application/pdf");
   // encodeURIComponent : les accents du nom de fichier passent sans problème
-  res.setHeader("Content-Disposition", `attachment; filename*=UTF-8''${encodeURIComponent(rows[0].file_name)}`);
+  res.setHeader(
+    "Content-Disposition",
+    `attachment; filename*=UTF-8''${encodeURIComponent(rows[0].file_name)}`,
+  );
   res.send(rows[0].data);
 });
 
@@ -49,7 +53,7 @@ publicRouter.get("/:slug", async (req, res) => {
        LEFT JOIN profiles p ON p.user_id = u.id
        LEFT JOIN cv_files cv ON cv.user_id = u.id
       WHERE u.slug = $1 AND u.is_public = TRUE`,
-    [slug]
+    [slug],
   );
 
   if (userResult.rows.length === 0) {
@@ -67,7 +71,7 @@ publicRouter.get("/:slug", async (req, res) => {
               to_char(end_date, 'YYYY-MM') AS end_date,
               description
          FROM experiences WHERE user_id = $1 ORDER BY sort_order`,
-      [userId]
+      [userId],
     ),
     pool.query(
       `SELECT id, degree, school,
@@ -75,17 +79,17 @@ publicRouter.get("/:slug", async (req, res) => {
               to_char(end_date, 'YYYY-MM') AS end_date,
               description
          FROM education WHERE user_id = $1 ORDER BY sort_order`,
-      [userId]
+      [userId],
     ),
     pool.query(
       `SELECT id, name, category, level
          FROM skills WHERE user_id = $1 ORDER BY sort_order`,
-      [userId]
+      [userId],
     ),
     pool.query(
       `SELECT id, title, description, technologies, repo_url, demo_url, image_url
          FROM projects WHERE user_id = $1 ORDER BY sort_order`,
-      [userId]
+      [userId],
     ),
   ]);
 
@@ -98,7 +102,9 @@ publicRouter.get("/:slug", async (req, res) => {
   };
 
   // 4. On garde le résultat dans Redis pour les prochaines visites
-  await redis.set(cacheKey, JSON.stringify(portfolio), { EX: CACHE_TTL_SECONDS });
+  await redis.set(cacheKey, JSON.stringify(portfolio), {
+    EX: CACHE_TTL_SECONDS,
+  });
   recordVisit(req, slug).catch(console.error);
   res.json({ source: "db", ...portfolio });
 });

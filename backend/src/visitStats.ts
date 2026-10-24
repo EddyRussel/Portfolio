@@ -67,6 +67,17 @@ export async function recordCvDownload(req: Request, slug: string): Promise<void
   await redis.hIncrBy(PENDING, `${slug}|${today()}|downloads`, 1);
 }
 
+// Efface les traces Redis des statistiques d'un portfolio (suppression du compte).
+// Sans ça, un nouveau compte qui obtiendrait la même adresse (slug) hériterait de ces traces.
+export async function purgeStats(slug: string): Promise<void> {
+  for (const pattern of [`stats:seen:${slug}:*`, `stats:uv:${slug}:*`]) {
+    for await (const key of redis.scanIterator({ MATCH: pattern })) await redis.del(key);
+  }
+  const pending = await redis.hKeys(PENDING);
+  const fields = pending.filter((field) => field.startsWith(`${slug}|`));
+  if (fields.length > 0) await redis.hDel(PENDING, fields);
+}
+
 // ---------- Recopie Redis -> PostgreSQL ----------
 export async function flushStats(): Promise<void> {
   // RENAME est atomique : les visites qui arrivent pendant la recopie

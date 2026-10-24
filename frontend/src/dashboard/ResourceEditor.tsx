@@ -16,14 +16,19 @@ function toForm(config: ResourceConfig, item?: Item): FormValues {
   const values: FormValues = {};
   for (const field of config.fields) {
     const raw = item?.[field.name];
-    if (field.type === "tags") values[field.name] = Array.isArray(raw) ? raw.join(", ") : "";
-    else values[field.name] = raw === null || raw === undefined ? "" : String(raw);
+    if (field.type === "tags")
+      values[field.name] = Array.isArray(raw) ? raw.join(", ") : "";
+    else
+      values[field.name] = raw === null || raw === undefined ? "" : String(raw);
   }
   return values;
 }
 
 // Valeurs du formulaire -> données envoyées à l'API
-function toPayload(config: ResourceConfig, values: FormValues): Record<string, unknown> {
+function toPayload(
+  config: ResourceConfig,
+  values: FormValues,
+): Record<string, unknown> {
   const payload: Record<string, unknown> = {};
   for (const field of config.fields) {
     const value = values[field.name] ?? "";
@@ -72,12 +77,20 @@ export default function ResourceEditor({ config }: { config: ResourceConfig }) {
     try {
       const payload = toPayload(config, values);
       if (editing === "new") {
-        const created = await api<Item>(config.path, { method: "POST", body: payload });
+        const created = await api<Item>(config.path, {
+          method: "POST",
+          body: payload,
+        });
         setItems((list) => [...list, created]);
         setNotice("Ajouté.");
       } else {
-        const updated = await api<Item>(`${config.path}/${editing}`, { method: "PUT", body: payload });
-        setItems((list) => list.map((i) => (i.id === updated.id ? updated : i)));
+        const updated = await api<Item>(`${config.path}/${editing}`, {
+          method: "PUT",
+          body: payload,
+        });
+        setItems((list) =>
+          list.map((i) => (i.id === updated.id ? updated : i)),
+        );
         setNotice("Modifications enregistrées.");
       }
       setEditing(null);
@@ -89,7 +102,12 @@ export default function ResourceEditor({ config }: { config: ResourceConfig }) {
   }
 
   async function handleDelete(item: Item) {
-    if (!window.confirm(`Supprimer « ${config.title(item)} » ? Cette action est définitive.`)) return;
+    if (
+      !window.confirm(
+        `Supprimer « ${config.title(item)} » ? Cette action est définitive.`,
+      )
+    )
+      return;
     try {
       await api(`${config.path}/${item.id}`, { method: "DELETE" });
       setItems((list) => list.filter((i) => i.id !== item.id));
@@ -104,10 +122,16 @@ export default function ResourceEditor({ config }: { config: ResourceConfig }) {
     const target = index + direction;
     if (target < 0 || target >= items.length) return;
     const reordered = [...items];
-    [reordered[index], reordered[target]] = [reordered[target], reordered[index]];
+    [reordered[index], reordered[target]] = [
+      reordered[target],
+      reordered[index],
+    ];
     setItems(reordered); // affichage immédiat, sans attendre l'API
     try {
-      await api(`${config.path}/reorder`, { method: "PUT", body: { ids: reordered.map((i) => i.id) } });
+      await api(`${config.path}/reorder`, {
+        method: "PUT",
+        body: { ids: reordered.map((i) => i.id) },
+      });
     } catch (err) {
       setItems(items); // en cas d'échec, on remet l'ancien ordre
       setError((err as Error).message);
@@ -127,13 +151,19 @@ export default function ResourceEditor({ config }: { config: ResourceConfig }) {
             key={field.name}
             field={field}
             value={values[field.name] ?? ""}
-            onChange={(v) => setValues((current) => ({ ...current, [field.name]: v }))}
+            onChange={(v) =>
+              setValues((current) => ({ ...current, [field.name]: v }))
+            }
           />
         ))}
       </div>
       <div className="editor-actions">
         <button type="submit" className="btn-primary" disabled={saving}>
-          {saving ? "Enregistrement…" : editing === "new" ? "Ajouter" : "Enregistrer"}
+          {saving
+            ? "Enregistrement…"
+            : editing === "new"
+              ? "Ajouter"
+              : "Enregistrer"}
         </button>
         <button
           type="button"
@@ -165,11 +195,16 @@ export default function ResourceEditor({ config }: { config: ResourceConfig }) {
         </p>
       )}
 
-      {items.length === 0 && editing !== "new" && <p className="muted">{config.empty}</p>}
+      {items.length === 0 && editing !== "new" && (
+        <p className="muted">{config.empty}</p>
+      )}
 
       <ol className="items">
         {items.map((item, index) => (
-          <li key={item.id} className={`item ${editing === item.id ? "is-editing" : ""}`}>
+          <li
+            key={item.id}
+            className={`item ${editing === item.id ? "is-editing" : ""}`}
+          >
             {editing === item.id ? (
               form
             ) : (
@@ -198,7 +233,10 @@ export default function ResourceEditor({ config }: { config: ResourceConfig }) {
                   <button className="btn-ghost" onClick={() => startEdit(item)}>
                     Modifier
                   </button>
-                  <button className="btn-danger" onClick={() => handleDelete(item)}>
+                  <button
+                    className="btn-danger"
+                    onClick={() => handleDelete(item)}
+                  >
                     Supprimer
                   </button>
                 </div>

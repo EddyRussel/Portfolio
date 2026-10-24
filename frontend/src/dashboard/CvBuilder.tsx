@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { api, API_URL } from "../api";
-import { uploadCvFile } from "./CvFileManager";
+import { uploadCvFile } from "./cvFileApi";
 
 // ---------------------------------------------------------------------------
 // Écran "Mon CV" : choisir le gabarit (RF-21), les sections et les éléments (RF-22),
@@ -25,8 +25,16 @@ type Options = {
 };
 
 const TEMPLATES = [
-  { id: "classic", label: "Classique", description: "Une colonne, sobre et traditionnel." },
-  { id: "modern", label: "Moderne", description: "Deux colonnes, aux couleurs du portfolio." },
+  {
+    id: "classic",
+    label: "Classique",
+    description: "Une colonne, sobre et traditionnel.",
+  },
+  {
+    id: "modern",
+    label: "Moderne",
+    description: "Deux colonnes, aux couleurs du portfolio.",
+  },
 ] as const;
 
 const SECTIONS: { key: ListKey; label: string }[] = [
@@ -51,14 +59,28 @@ async function fetchPdf(mode: "preview" | "download", options: Options) {
   // Nom du fichier envoyé par l'API : attachment; filename="CV_Eddy_Russel_Ngoue.pdf"
   const disposition = response.headers.get("Content-Disposition") ?? "";
   const fileName = /filename="(.+)"/.exec(disposition)?.[1] ?? "CV.pdf";
-  return { blob: await response.blob(), fileName, cached: response.headers.get("X-CV-Cache") === "HIT" };
+  return {
+    blob: await response.blob(),
+    fileName,
+    cached: response.headers.get("X-CV-Cache") === "HIT",
+  };
 }
 
-export default function CvBuilder({ onPublished }: { onPublished: () => void }) {
+export default function CvBuilder({
+  onPublished,
+}: {
+  onPublished: () => void;
+}) {
   const [data, setData] = useState<CvData | null>(null);
   const [options, setOptions] = useState<Options>({
     template: "modern",
-    sections: { bio: true, experiences: true, education: true, skills: true, projects: true },
+    sections: {
+      bio: true,
+      experiences: true,
+      education: true,
+      skills: true,
+      projects: true,
+    },
     exclude: { experiences: [], education: [], skills: [], projects: [] },
   });
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
@@ -135,16 +157,26 @@ export default function CvBuilder({ onPublished }: { onPublished: () => void }) 
   }
 
   const toggleSection = (key: "bio" | ListKey) =>
-    setOptions((o) => ({ ...o, sections: { ...o.sections, [key]: !o.sections[key] } }));
+    setOptions((o) => ({
+      ...o,
+      sections: { ...o.sections, [key]: !o.sections[key] },
+    }));
 
   const toggleItem = (key: ListKey, id: number) =>
     setOptions((o) => {
       const excluded = o.exclude[key];
-      const next = excluded.includes(id) ? excluded.filter((x) => x !== id) : [...excluded, id];
+      const next = excluded.includes(id)
+        ? excluded.filter((x) => x !== id)
+        : [...excluded, id];
       return { ...o, exclude: { ...o.exclude, [key]: next } };
     });
 
-  if (!data) return error ? <p className="alert alert-error">{error}</p> : <p className="muted">Chargement…</p>;
+  if (!data)
+    return error ? (
+      <p className="alert alert-error">{error}</p>
+    ) : (
+      <p className="muted">Chargement…</p>
+    );
 
   const entries: Record<ListKey, Entry[]> = {
     experiences: data.experiences.map((e) => ({ id: e.id, label: e.position })),
@@ -161,7 +193,10 @@ export default function CvBuilder({ onPublished }: { onPublished: () => void }) 
           <legend>Modèle</legend>
           <div className="cv-templates">
             {TEMPLATES.map((t) => (
-              <label key={t.id} className={`cv-template ${options.template === t.id ? "is-selected" : ""}`}>
+              <label
+                key={t.id}
+                className={`cv-template ${options.template === t.id ? "is-selected" : ""}`}
+              >
                 <input
                   type="radio"
                   name="template"
@@ -179,7 +214,11 @@ export default function CvBuilder({ onPublished }: { onPublished: () => void }) 
         <fieldset className="cv-group">
           <legend>Contenu</legend>
           <label className="check">
-            <input type="checkbox" checked={options.sections.bio} onChange={() => toggleSection("bio")} />
+            <input
+              type="checkbox"
+              checked={options.sections.bio}
+              onChange={() => toggleSection("bio")}
+            />
             Profil (présentation)
           </label>
 
@@ -187,11 +226,16 @@ export default function CvBuilder({ onPublished }: { onPublished: () => void }) 
             <details key={key} className="cv-section">
               <summary>
                 <label className="check" onClick={(e) => e.stopPropagation()}>
-                  <input type="checkbox" checked={options.sections[key]} onChange={() => toggleSection(key)} />
+                  <input
+                    type="checkbox"
+                    checked={options.sections[key]}
+                    onChange={() => toggleSection(key)}
+                  />
                   {label}
                 </label>
                 <span className="muted">
-                  {entries[key].length - options.exclude[key].length}/{entries[key].length}
+                  {entries[key].length - options.exclude[key].length}/
+                  {entries[key].length}
                 </span>
               </summary>
               <div className="cv-items">
@@ -209,13 +253,23 @@ export default function CvBuilder({ onPublished }: { onPublished: () => void }) 
               </div>
             </details>
           ))}
-          <p className="field-hint">Ouvre une section pour choisir les éléments à inclure.</p>
+          <p className="field-hint">
+            Ouvre une section pour choisir les éléments à inclure.
+          </p>
         </fieldset>
 
-        <button className="btn-primary cv-download" onClick={download} disabled={downloading}>
+        <button
+          className="btn-primary cv-download"
+          onClick={download}
+          disabled={downloading}
+        >
           {downloading ? "Préparation…" : "Télécharger mon CV (PDF)"}
         </button>
-        <button className="btn-ghost cv-publish" onClick={publish} disabled={publishing}>
+        <button
+          className="btn-ghost cv-publish"
+          onClick={publish}
+          disabled={publishing}
+        >
           {publishing ? "Publication…" : "Publier ce CV sur mon portfolio"}
         </button>
         {published && (
@@ -235,7 +289,11 @@ export default function CvBuilder({ onPublished }: { onPublished: () => void }) 
         <div className="cv-preview-bar">
           <span>Aperçu</span>
           <span className="muted">
-            {loadingPreview ? "Mise à jour…" : cached ? "Servi depuis le cache Redis" : "Généré à l'instant"}
+            {loadingPreview
+              ? "Mise à jour…"
+              : cached
+                ? "Servi depuis le cache Redis"
+                : "Généré à l'instant"}
           </span>
         </div>
         {previewUrl ? (
@@ -244,7 +302,12 @@ export default function CvBuilder({ onPublished }: { onPublished: () => void }) 
           <p className="muted cv-preview-empty">Préparation de l'aperçu…</p>
         )}
         {previewUrl && (
-          <a className="cv-open" href={previewUrl} target="_blank" rel="noreferrer">
+          <a
+            className="cv-open"
+            href={previewUrl}
+            target="_blank"
+            rel="noreferrer"
+          >
             Ouvrir l'aperçu dans un nouvel onglet
           </a>
         )}

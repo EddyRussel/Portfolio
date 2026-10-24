@@ -1,7 +1,12 @@
 import { Router } from "express";
 import { z } from "zod";
 import { requireAuth } from "../middleware/requireAuth.js";
-import { applySelection, cvFileName, generateCv, loadCvData } from "../cv/service.js";
+import {
+  applySelection,
+  cvFileName,
+  generateCv,
+  loadCvData,
+} from "../cv/service.js";
 import { TEMPLATES } from "../cv/types.js";
 
 export const cvRouter = Router();
@@ -38,23 +43,31 @@ cvRouter.get("/data", async (_req, res) => {
 for (const mode of ["preview", "download"] as const) {
   cvRouter.post(`/${mode}`, async (req, res) => {
     const parsed = optionsSchema.safeParse(req.body ?? {});
-    if (!parsed.success) return res.status(400).json({ error: "Options du CV invalides." });
+    if (!parsed.success)
+      return res.status(400).json({ error: "Options du CV invalides." });
 
     const data = await loadCvData(res.locals.userId);
     if (!data) return res.status(404).json({ error: "Profil introuvable." });
 
     try {
       const selected = applySelection(data, parsed.data);
-      const { pdf, cached } = await generateCv(res.locals.userId, selected, parsed.data.template);
+      const { pdf, cached } = await generateCv(
+        res.locals.userId,
+        selected,
+        parsed.data.template,
+      );
       const fileName = cvFileName(data.full_name ?? "");
 
       res.setHeader("Content-Type", "application/pdf");
       res.setHeader(
         "Content-Disposition",
-        `${mode === "download" ? "attachment" : "inline"}; filename="${fileName}"`
+        `${mode === "download" ? "attachment" : "inline"}; filename="${fileName}"`,
       );
       res.setHeader("X-CV-Cache", cached ? "HIT" : "MISS"); // pour voir le cache Redis en action
-      res.setHeader("Access-Control-Expose-Headers", "Content-Disposition, X-CV-Cache");
+      res.setHeader(
+        "Access-Control-Expose-Headers",
+        "Content-Disposition, X-CV-Cache",
+      );
       res.send(pdf);
     } catch (err) {
       console.error(err);

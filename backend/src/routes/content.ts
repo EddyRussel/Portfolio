@@ -1,6 +1,11 @@
 import { z } from "zod";
 import { createCrudRouter } from "./crud.js";
-import { month, optionalMonth, optionalText, optionalUrl } from "../validation.js";
+import {
+  month,
+  optionalMonth,
+  optionalText,
+  optionalUrl,
+} from "../validation.js";
 
 // Les 4 types de contenu du portfolio, chacun avec ses règles de validation.
 
@@ -21,7 +26,11 @@ export const educationRouter = createCrudRouter({
   dateColumns: ["start_date", "end_date"],
   schema: z.object({
     degree: z.string().trim().min(1, "Le diplôme est obligatoire.").max(150),
-    school: z.string().trim().min(1, "L'établissement est obligatoire.").max(150),
+    school: z
+      .string()
+      .trim()
+      .min(1, "L'établissement est obligatoire.")
+      .max(150),
     start_date: month,
     end_date: optionalMonth,
     description: optionalText(3000),
@@ -31,13 +40,25 @@ export const educationRouter = createCrudRouter({
 export const skillsRouter = createCrudRouter({
   table: "skills",
   schema: z.object({
-    name: z.string().trim().min(1, "Le nom de la compétence est obligatoire.").max(100),
-    category: z.enum(["langage", "technologie", "outil", "langue", "soft skill"], {
-      errorMap: () => ({ message: "Catégorie invalide." }),
-    }),
+    name: z
+      .string()
+      .trim()
+      .min(1, "Le nom de la compétence est obligatoire.")
+      .max(100),
+    category: z.enum(
+      ["langage", "technologie", "outil", "langue", "soft skill"],
+      {
+        errorMap: () => ({ message: "Catégorie invalide." }),
+      },
+    ),
     level: z.preprocess(
       (v) => (v === "" || v === undefined ? null : Number(v)),
-      z.number().int().min(1, "Niveau entre 1 et 5.").max(5, "Niveau entre 1 et 5.").nullable()
+      z
+        .number()
+        .int()
+        .min(1, "Niveau entre 1 et 5.")
+        .max(5, "Niveau entre 1 et 5.")
+        .nullable(),
     ),
   }),
 });

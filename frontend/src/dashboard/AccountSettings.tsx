@@ -34,7 +34,9 @@ export default function AccountSettings() {
       setCurrent("");
       setNext("");
       setConfirm("");
-      setPwNotice("Mot de passe modifié. Tes autres appareils ont été déconnectés.");
+      setPwNotice(
+        "Mot de passe modifié. Tes autres appareils ont été déconnectés.",
+      );
     } catch (err) {
       setPwError((err as Error).message);
     } finally {
@@ -51,13 +53,16 @@ export default function AccountSettings() {
     event.preventDefault();
     setDeleteError(null);
     const ok = window.confirm(
-      "Supprimer définitivement ton compte, ton portfolio et toutes tes données ? Cette action est irréversible."
+      "Supprimer définitivement ton compte, ton portfolio et toutes tes données ? Cette action est irréversible.",
     );
     if (!ok) return;
 
     setDeleting(true);
     try {
-      await api("/api/account", { method: "DELETE", body: { password: deletePassword } });
+      await api("/api/account", {
+        method: "DELETE",
+        body: { password: deletePassword },
+      });
       await logout(); // oublie l'utilisateur côté frontend
       navigate("/register", { replace: true });
     } catch (err) {
@@ -109,7 +114,9 @@ export default function AccountSettings() {
               </p>
             </div>
             <div className="field">
-              <label htmlFor="confirm_password">Confirmer le nouveau mot de passe</label>
+              <label htmlFor="confirm_password">
+                Confirmer le nouveau mot de passe
+              </label>
               <input
                 id="confirm_password"
                 type="password"
@@ -130,8 +137,8 @@ export default function AccountSettings() {
       <section className="account-block account-danger">
         <h2>Supprimer mon compte</h2>
         <p className="muted">
-          Ton portfolio, ton CV et toutes tes données (profil, expériences, formations, compétences, projets) seront
-          effacés définitivement.
+          Ton portfolio, ton CV et toutes tes données (profil, expériences,
+          formations, compétences, projets) seront effacés définitivement.
         </p>
         <form onSubmit={deleteAccount} noValidate>
           {deleteError && (
@@ -140,7 +147,9 @@ export default function AccountSettings() {
             </p>
           )}
           <div className="field account-delete-field">
-            <label htmlFor="delete_password">Confirme avec ton mot de passe</label>
+            <label htmlFor="delete_password">
+              Confirme avec ton mot de passe
+            </label>
             <input
               id="delete_password"
               type="password"
@@ -149,7 +158,11 @@ export default function AccountSettings() {
               onChange={(e) => setDeletePassword(e.target.value)}
             />
           </div>
-          <button type="submit" className="btn-delete" disabled={deleting || !deletePassword}>
+          <button
+            type="submit"
+            className="btn-delete"
+            disabled={deleting || !deletePassword}
+          >
             {deleting ? "Suppression…" : "Supprimer définitivement mon compte"}
           </button>
         </form>

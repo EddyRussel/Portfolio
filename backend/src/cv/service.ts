@@ -19,26 +19,30 @@ export async function loadCvData(userId: number): Promise<CvData | null> {
             p.linkedin_url, p.github_url, p.website_url
        FROM users u LEFT JOIN profiles p ON p.user_id = u.id
       WHERE u.id = $1`,
-    [userId]
+    [userId],
   );
   if (rows.length === 0) return null;
 
-  const month = (column: string) => `to_char(${column}, 'YYYY-MM') AS ${column}`;
+  const month = (column: string) =>
+    `to_char(${column}, 'YYYY-MM') AS ${column}`;
   const [experiences, education, skills, projects] = await Promise.all([
     pool.query(
       `SELECT id, position, company, ${month("start_date")}, ${month("end_date")}, description
          FROM experiences WHERE user_id = $1 ORDER BY sort_order, id`,
-      [userId]
+      [userId],
     ),
     pool.query(
       `SELECT id, degree, school, ${month("start_date")}, ${month("end_date")}, description
          FROM education WHERE user_id = $1 ORDER BY sort_order, id`,
-      [userId]
+      [userId],
     ),
-    pool.query("SELECT id, name, category, level FROM skills WHERE user_id = $1 ORDER BY sort_order, id", [userId]),
+    pool.query(
+      "SELECT id, name, category, level FROM skills WHERE user_id = $1 ORDER BY sort_order, id",
+      [userId],
+    ),
     pool.query(
       "SELECT id, title, description, technologies FROM projects WHERE user_id = $1 ORDER BY sort_order, id",
-      [userId]
+      [userId],
     ),
   ]);
 
@@ -53,18 +57,39 @@ export async function loadCvData(userId: number): Promise<CvData | null> {
 
 // ---------- 2. Garder seulement ce que l'étudiant a choisi (RF-22) ----------
 export type Selection = {
-  sections: { bio: boolean; experiences: boolean; education: boolean; skills: boolean; projects: boolean };
-  exclude: { experiences: number[]; education: number[]; skills: number[]; projects: number[] };
+  sections: {
+    bio: boolean;
+    experiences: boolean;
+    education: boolean;
+    skills: boolean;
+    projects: boolean;
+  };
+  exclude: {
+    experiences: number[];
+    education: number[];
+    skills: number[];
+    projects: number[];
+  };
 };
 
-export function applySelection(data: CvData, { sections, exclude }: Selection): CvData {
-  const keep = <T extends { id: number }>(list: T[], show: boolean, excluded: number[]) =>
-    show ? list.filter((item) => !excluded.includes(item.id)) : [];
+export function applySelection(
+  data: CvData,
+  { sections, exclude }: Selection,
+): CvData {
+  const keep = <T extends { id: number }>(
+    list: T[],
+    show: boolean,
+    excluded: number[],
+  ) => (show ? list.filter((item) => !excluded.includes(item.id)) : []);
 
   return {
     ...data,
     bio: sections.bio ? data.bio : null,
-    experiences: keep(data.experiences, sections.experiences, exclude.experiences),
+    experiences: keep(
+      data.experiences,
+      sections.experiences,
+      exclude.experiences,
+    ),
     education: keep(data.education, sections.education, exclude.education),
     skills: keep(data.skills, sections.skills, exclude.skills),
     projects: keep(data.projects, sections.projects, exclude.projects),
@@ -80,9 +105,12 @@ export function applySelection(data: CvData, { sections, exclude }: Selection): 
 export async function generateCv(
   userId: number,
   data: CvData,
-  template: Template
+  template: Template,
 ): Promise<{ pdf: Buffer; cached: boolean }> {
-  const version = createHash("sha256").update(JSON.stringify(data)).digest("hex").slice(0, 16);
+  const version = createHash("sha256")
+    .update(JSON.stringify(data))
+    .digest("hex")
+    .slice(0, 16);
   const cacheKey = `cv:${userId}:${template}:${version}`;
 
   const cached = await redis.get(cacheKey);
@@ -93,7 +121,9 @@ export async function generateCv(
   const pdf = await renderToBuffer(Component({ data }));
 
   // Redis stocke du texte : on encode le PDF (binaire) en base64
-  await redis.set(cacheKey, pdf.toString("base64"), { EX: CV_CACHE_TTL_SECONDS });
+  await redis.set(cacheKey, pdf.toString("base64"), {
+    EX: CV_CACHE_TTL_SECONDS,
+  });
   return { pdf, cached: false };
 }
 

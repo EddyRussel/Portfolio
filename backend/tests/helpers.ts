@@ -8,9 +8,17 @@ export async function newUser(fullName = "Utilisateur Test") {
   const agent = request.agent(app);
   const email = `test-${randomUUID().slice(0, 8)}@test.local`;
   const password = "motdepasse-test";
-  const res = await agent.post("/api/auth/register").send({ full_name: fullName, email, password });
-  if (res.status !== 201) throw new Error(`Inscription impossible : ${JSON.stringify(res.body)}`);
-  return { agent, email, password, user: res.body.user as { id: number; slug: string } };
+  const res = await agent
+    .post("/api/auth/register")
+    .send({ full_name: fullName, email, password });
+  if (res.status !== 201)
+    throw new Error(`Inscription impossible : ${JSON.stringify(res.body)}`);
+  return {
+    agent,
+    email,
+    password,
+    user: res.body.user as { id: number; slug: string },
+  };
 }
 
 export { app, request };

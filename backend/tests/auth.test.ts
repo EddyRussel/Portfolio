@@ -10,7 +10,11 @@ describe("Authentification", () => {
   it("refuse une inscription invalide avec un message clair", async () => {
     const res = await request(app)
       .post("/api/auth/register")
-      .send({ full_name: "Test", email: "pas-un-courriel", password: "motdepasse" });
+      .send({
+        full_name: "Test",
+        email: "pas-un-courriel",
+        password: "motdepasse",
+      });
     expect(res.status).toBe(400);
     expect(res.body.error).toBe("Adresse courriel invalide.");
   });
@@ -34,7 +38,9 @@ describe("Authentification", () => {
 
   it("refuse un mauvais mot de passe sans dire si le compte existe", async () => {
     const { email } = await newUser();
-    const wrong = await request(app).post("/api/auth/login").send({ email, password: "mauvais" });
+    const wrong = await request(app)
+      .post("/api/auth/login")
+      .send({ email, password: "mauvais" });
     const unknown = await request(app)
       .post("/api/auth/login")
       .send({ email: "inconnu@test.local", password: "mauvais" });
@@ -51,7 +57,10 @@ describe("Authentification", () => {
   it("change le mot de passe et ferme les autres sessions (RF-03)", async () => {
     const { agent, email, password } = await newUser();
     const otherDevice = request.agent(app);
-    await otherDevice.post("/api/auth/login").send({ email, password }).expect(200);
+    await otherDevice
+      .post("/api/auth/login")
+      .send({ email, password })
+      .expect(200);
 
     await agent
       .put("/api/account/password")
@@ -60,15 +69,30 @@ describe("Authentification", () => {
 
     await agent.get("/api/auth/me").expect(200); // la session actuelle reste ouverte
     await otherDevice.get("/api/auth/me").expect(401); // l'autre appareil est déconnecté
-    await request(app).post("/api/auth/login").send({ email, password }).expect(401);
-    await request(app).post("/api/auth/login").send({ email, password: "nouveau-mdp-123" }).expect(200);
+    await request(app)
+      .post("/api/auth/login")
+      .send({ email, password })
+      .expect(401);
+    await request(app)
+      .post("/api/auth/login")
+      .send({ email, password: "nouveau-mdp-123" })
+      .expect(200);
   });
 
   it("supprime le compte et toutes ses données (RF-04)", async () => {
     const { agent, password, user } = await newUser();
-    await agent.post("/api/experiences").send({ position: "Poste", company: "Entreprise", start_date: "2026-01" });
+    await agent
+      .post("/api/experiences")
+      .send({
+        position: "Poste",
+        company: "Entreprise",
+        start_date: "2026-01",
+      });
 
-    await agent.delete("/api/account").send({ password: "mauvais" }).expect(401);
+    await agent
+      .delete("/api/account")
+      .send({ password: "mauvais" })
+      .expect(401);
     await agent.delete("/api/account").send({ password }).expect(204);
 
     await agent.get("/api/auth/me").expect(401);

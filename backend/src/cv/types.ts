@@ -18,9 +18,19 @@ export type CvEducation = {
   description: string | null;
 };
 
-export type CvSkill = { id: number; name: string; category: string | null; level: number | null };
+export type CvSkill = {
+  id: number;
+  name: string;
+  category: string | null;
+  level: number | null;
+};
 
-export type CvProject = { id: number; title: string; description: string | null; technologies: string[] | null };
+export type CvProject = {
+  id: number;
+  title: string;
+  description: string | null;
+  technologies: string[] | null;
+};
 
 export type CvData = {
   full_name: string;

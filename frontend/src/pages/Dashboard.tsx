@@ -52,7 +52,9 @@ export default function Dashboard() {
 
       <div className="dash-layout">
         <nav className="dash-tabs" aria-label="Sections du portfolio">
-          <p className="dash-hello">Bonjour {user.full_name.split(" ")[0]} 👋</p>
+          <p className="dash-hello">
+            Bonjour {user.full_name.split(" ")[0]} 👋
+          </p>
           {TABS.map((t) => (
             <button
               key={t.id}

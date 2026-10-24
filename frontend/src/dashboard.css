@@ -275,7 +275,9 @@
   height: 22px;
   border-radius: 50%;
   background: var(--muted);
-  transition: transform 0.2s, background 0.2s;
+  transition:
+    transform 0.2s,
+    background 0.2s;
 }
 .switch.is-on {
   background: var(--accent);

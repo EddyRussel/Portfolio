@@ -39,7 +39,10 @@ export async function destroySession(token: string): Promise<void> {
 }
 
 // Ferme toutes les sessions d'un utilisateur, sauf éventuellement celle à garder
-export async function destroyUserSessions(userId: number, keepToken?: string): Promise<void> {
+export async function destroyUserSessions(
+  userId: number,
+  keepToken?: string,
+): Promise<void> {
   const tokens = await redis.sMembers(userKey(userId));
   for (const token of tokens) {
     if (token === keepToken) continue;

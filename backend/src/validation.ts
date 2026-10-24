@@ -4,14 +4,31 @@ import { z } from "zod";
 
 // Un champ texte facultatif : "" (champ vidé dans le formulaire) devient null
 export const optionalText = (max: number) =>
-  z.preprocess((v) => (typeof v === "string" && v.trim() === "" ? null : v), z.string().trim().max(max).nullable().optional());
+  z.preprocess(
+    (v) => (typeof v === "string" && v.trim() === "" ? null : v),
+    z.string().trim().max(max).nullable().optional(),
+  );
 
 // Une URL facultative (doit commencer par http:// ou https://)
 export const optionalUrl = z.preprocess(
   (v) => (typeof v === "string" && v.trim() === "" ? null : v),
-  z.string().trim().url("Lien invalide : il doit commencer par https://").max(500).nullable().optional()
+  z
+    .string()
+    .trim()
+    .url("Lien invalide : il doit commencer par https://")
+    .max(500)
+    .nullable()
+    .optional(),
 );
 
 // Un mois au format "2026-05" (celui d'un <input type="month">)
-export const month = z.string().regex(/^\d{4}-(0[1-9]|1[0-2])$/, "Date invalide (format attendu : AAAA-MM).");
-export const optionalMonth = z.preprocess((v) => (v === "" ? null : v), month.nullable().optional());
+export const month = z
+  .string()
+  .regex(
+    /^\d{4}-(0[1-9]|1[0-2])$/,
+    "Date invalide (format attendu : AAAA-MM).",
+  );
+export const optionalMonth = z.preprocess(
+  (v) => (v === "" ? null : v),
+  month.nullable().optional(),
+);

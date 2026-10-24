@@ -1,6 +1,19 @@
 import type { CvData, CvSkill } from "./types.js";
 
-const MONTHS = ["janv.", "févr.", "mars", "avr.", "mai", "juin", "juil.", "août", "sept.", "oct.", "nov.", "déc."];
+const MONTHS = [
+  "janv.",
+  "févr.",
+  "mars",
+  "avr.",
+  "mai",
+  "juin",
+  "juil.",
+  "août",
+  "sept.",
+  "oct.",
+  "nov.",
+  "déc.",
+];
 
 // "2026-05" -> "mai 2026"
 export function formatMonth(value: string): string {
@@ -39,7 +52,9 @@ const CATEGORY_LABELS: Record<string, string> = {
 };
 
 // Regroupe les compétences par catégorie, dans un ordre fixe
-export function skillGroups(skills: CvSkill[]): { label: string; skills: CvSkill[] }[] {
+export function skillGroups(
+  skills: CvSkill[],
+): { label: string; skills: CvSkill[] }[] {
   const order = ["langage", "technologie", "outil", "soft skill", "langue"];
   const groups = new Map<string, CvSkill[]>();
   for (const skill of skills) {
@@ -47,12 +62,26 @@ export function skillGroups(skills: CvSkill[]): { label: string; skills: CvSkill
     groups.set(key, [...(groups.get(key) ?? []), skill]);
   }
   return [...groups.entries()]
-    .sort(([a], [b]) => (order.indexOf(a) + 1 || 99) - (order.indexOf(b) + 1 || 99))
-    .map(([key, list]) => ({ label: CATEGORY_LABELS[key] ?? "Autres", skills: list }));
+    .sort(
+      ([a], [b]) => (order.indexOf(a) + 1 || 99) - (order.indexOf(b) + 1 || 99),
+    )
+    .map(([key, list]) => ({
+      label: CATEGORY_LABELS[key] ?? "Autres",
+      skills: list,
+    }));
 }
 
 // Langues : niveau en mots
 export function languageLevel(level: number | null): string {
   if (!level) return "";
-  return ["", "notions", "débutant", "intermédiaire", "avancé", "courant / langue maternelle"][level] ?? "";
+  return (
+    [
+      "",
+      "notions",
+      "débutant",
+      "intermédiaire",
+      "avancé",
+      "courant / langue maternelle",
+    ][level] ?? ""
+  );
 }

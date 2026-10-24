@@ -9,7 +9,11 @@ export const profileRouter = Router();
 profileRouter.use(requireAuth); // toutes les routes de ce fichier sont protégées
 
 const profileSchema = z.object({
-  full_name: z.string().trim().min(2, "Le nom doit contenir au moins 2 caractères.").max(150),
+  full_name: z
+    .string()
+    .trim()
+    .min(2, "Le nom doit contenir au moins 2 caractères.")
+    .max(150),
   headline: optionalText(200),
   bio: optionalText(3000),
   phone: optionalText(30),
@@ -28,7 +32,7 @@ profileRouter.get("/", async (_req, res) => {
             p.linkedin_url, p.github_url, p.website_url, p.photo_url
        FROM users u LEFT JOIN profiles p ON p.user_id = u.id
       WHERE u.id = $1`,
-    [res.locals.userId]
+    [res.locals.userId],
   );
   res.json(rows[0]);
 });
@@ -36,7 +40,8 @@ profileRouter.get("/", async (_req, res) => {
 // PUT /api/profile : modifier mon profil
 profileRouter.put("/", async (req, res) => {
   const parsed = profileSchema.safeParse(req.body);
-  if (!parsed.success) return res.status(400).json({ error: parsed.error.issues[0].message });
+  if (!parsed.success)
+    return res.status(400).json({ error: parsed.error.issues[0].message });
   const p = parsed.data;
 
   // INSERT ... ON CONFLICT : crée le profil s'il n'existe pas encore, sinon le met à jour
@@ -48,9 +53,17 @@ profileRouter.put("/", async (req, res) => {
        phone = EXCLUDED.phone, city = EXCLUDED.city, linkedin_url = EXCLUDED.linkedin_url,
        github_url = EXCLUDED.github_url, website_url = EXCLUDED.website_url, photo_url = EXCLUDED.photo_url`,
     [
-      res.locals.userId, p.full_name, p.headline ?? null, p.bio ?? null, p.phone ?? null, p.city ?? null,
-      p.linkedin_url ?? null, p.github_url ?? null, p.website_url ?? null, p.photo_url ?? null,
-    ]
+      res.locals.userId,
+      p.full_name,
+      p.headline ?? null,
+      p.bio ?? null,
+      p.phone ?? null,
+      p.city ?? null,
+      p.linkedin_url ?? null,
+      p.github_url ?? null,
+      p.website_url ?? null,
+      p.photo_url ?? null,
+    ],
   );
   await invalidatePortfolio(res.locals.userId);
   res.json({ ok: true });
@@ -59,9 +72,13 @@ profileRouter.put("/", async (req, res) => {
 // PATCH /api/profile/visibility : rendre mon portfolio public ou privé (RF-11)
 profileRouter.patch("/visibility", async (req, res) => {
   const parsed = z.object({ is_public: z.boolean() }).safeParse(req.body);
-  if (!parsed.success) return res.status(400).json({ error: "Valeur invalide." });
+  if (!parsed.success)
+    return res.status(400).json({ error: "Valeur invalide." });
 
-  await pool.query("UPDATE users SET is_public = $1 WHERE id = $2", [parsed.data.is_public, res.locals.userId]);
+  await pool.query("UPDATE users SET is_public = $1 WHERE id = $2", [
+    parsed.data.is_public,
+    res.locals.userId,
+  ]);
   await invalidatePortfolio(res.locals.userId);
   res.json({ is_public: parsed.data.is_public });
 });

@@ -2,6 +2,7 @@ import { afterAll, beforeAll } from "vitest";
 import { pool } from "../src/db.js";
 import { redis, connectRedis } from "../src/redis.js";
 import { runMigrations } from "../src/migrate.js";
+import { purgeStats } from "../src/visitStats.js";
 
 // Avant les tests : connexion à Redis et base à jour
 beforeAll(async () => {
@@ -13,7 +14,10 @@ beforeAll(async () => {
 // puis on ferme proprement les connexions
 afterAll(async () => {
   const { rows } = await pool.query("DELETE FROM users WHERE email LIKE '%@test.local' RETURNING slug");
-  for (const { slug } of rows) await redis.del(`portfolio:${slug}`);
+  for (const { slug } of rows) {
+    await redis.del(`portfolio:${slug}`);
+    await purgeStats(slug);
+  }
   await redis.quit();
   await pool.end();
 });

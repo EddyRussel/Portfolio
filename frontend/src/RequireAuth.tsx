@@ -5,10 +5,11 @@ import { useAuth } from "./auth";
 // Protège une page : si personne n'est connecté, on redirige vers /login.
 // (C'est le "garde" côté frontend ; la vraie sécurité reste le middleware requireAuth de l'API.)
 export default function RequireAuth({ children }: { children: ReactNode }) {
-    const { user, loading } = useAuth();
-    const location = useLocation();
+  const { user, loading } = useAuth();
+  const location = useLocation();
 
-    if (loading) return <main className="auth-page">Chargement…</main>;
-    if (!user) return <Navigate to="/login" replace state={{ from: location.pathname }} />;
-    return <>{children}</>;
+  if (loading) return <main className="auth-page">Chargement…</main>;
+  if (!user)
+    return <Navigate to="/login" replace state={{ from: location.pathname }} />;
+  return <>{children}</>;
 }
