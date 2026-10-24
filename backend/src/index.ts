@@ -9,6 +9,10 @@ import { cvRouter } from "./routes/cv.js";
 import { authRouter } from "./routes/auth.js";
 import { profileRouter } from "./routes/profile.js";
 import { accountRouter } from "./routes/account.js";
+import { cvFileRouter } from "./routes/cvFile.js";
+import { runMigrations } from "./migrate.js";
+import { statsRouter } from "./routes/stats.js";
+import { flushStats, startStatsFlusher } from "./visitStats.js";
 import { experiencesRouter, educationRouter, skillsRouter, projectsRouter } from "./routes/content.js";
 
 const app = express();
@@ -28,6 +32,8 @@ app.use("/api/auth", authRouter);
 // Espace privé : gestion du contenu (toutes ces routes exigent d'être connecté)
 app.use("/api/profile", profileRouter);
 app.use("/api/account", accountRouter);
+app.use("/api/cv-file", cvFileRouter);
+app.use("/api/stats", statsRouter);
 app.use("/api/experiences", experiencesRouter);
 app.use("/api/education", educationRouter);
 app.use("/api/skills", skillsRouter);
@@ -35,8 +41,16 @@ app.use("/api/projects", projectsRouter);
 
 async function start() {
   await connectRedis();
+  await runMigrations(); // met la base à jour (nouvelles tables) avant d'accepter des requêtes
+  startStatsFlusher(); // recopie Redis -> PostgreSQL toutes les minutes
   app.listen(port, () => console.log(`API démarrée sur le port ${port}`));
 }
+
+// À l'arrêt (docker compose down / restart) : dernière recopie des statistiques
+process.on("SIGTERM", async () => {
+  await flushStats().catch(console.error);
+  process.exit(0);
+});
 
 start().catch((err) => {
   console.error(err);
