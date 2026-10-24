@@ -5,8 +5,7 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Dashboard from "./pages/Dashboard";
 import RequireAuth from "./RequireAuth";
-
-const API_URL = import.meta.env.VITE_API_URL ?? "http://localhost:3000";
+import { API_URL } from "./api";
 
 type Health = { status: string; postgres?: string; redis?: string };
 
@@ -21,9 +20,7 @@ function Home() {
   }, []);
 
   return (
-    <main
-      style={{ fontFamily: "sans-serif", maxWidth: 720, margin: "2rem auto" }}
-    >
+    <main style={{ fontFamily: "sans-serif", maxWidth: 720, margin: "2rem auto" }}>
       <h1>Portfolio de Eddy Russel</h1>
       <p>Socle de départ : React + Vite + Express + PostgreSQL + Redis.</p>
       <h2>État des services</h2>

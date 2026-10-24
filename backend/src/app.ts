@@ -1,8 +1,4 @@
-import express, {
-  type NextFunction,
-  type Request,
-  type Response,
-} from "express";
+import express, { type NextFunction, type Request, type Response } from "express";
 // Avec Express 4, une erreur dans une route "async" n'est pas rattrapée et fait planter
 // tout le serveur. Cette ligne corrige ça : l'erreur est envoyée au gestionnaire d'erreurs plus bas.
 import "express-async-errors";
@@ -17,12 +13,7 @@ import { profileRouter } from "./routes/profile.js";
 import { accountRouter } from "./routes/account.js";
 import { cvFileRouter } from "./routes/cvFile.js";
 import { statsRouter } from "./routes/stats.js";
-import {
-  experiencesRouter,
-  educationRouter,
-  skillsRouter,
-  projectsRouter,
-} from "./routes/content.js";
+import { experiencesRouter, educationRouter, skillsRouter, projectsRouter } from "./routes/content.js";
 
 // ---------------------------------------------------------------------------
 // L'application Express (routes, sécurité...), SANS la démarrer.
@@ -30,14 +21,13 @@ import {
 // ---------------------------------------------------------------------------
 export const app = express();
 
+// En production, l'API est derrière des relais (Vercel puis Render) :
+// "trust proxy" lui fait lire la vraie adresse du visiteur dans X-Forwarded-For.
+app.set("trust proxy", true);
+
 app.use(helmet());
 // credentials: true = le navigateur a le droit d'envoyer le cookie de session à l'API
-app.use(
-  cors({
-    origin: process.env.CORS_ORIGIN ?? "http://localhost:5173",
-    credentials: true,
-  }),
-);
+app.use(cors({ origin: process.env.CORS_ORIGIN ?? "http://localhost:5173", credentials: true }));
 app.use(express.json());
 app.use(cookieParser()); // lit les cookies et les range dans req.cookies
 

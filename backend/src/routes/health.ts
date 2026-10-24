@@ -13,3 +13,9 @@ healthRouter.get("/", async (_req, res) => {
     res.status(503).json({ status: "error", message: String(err) });
   }
 });
+
+// GET /api/health/ping : répond sans toucher à PostgreSQL ni à Redis.
+// Sert à garder le serveur gratuit éveillé, sans réveiller la base (heures de calcul limitées).
+healthRouter.get("/ping", (_req, res) => {
+  res.json({ status: "ok" });
+});
