@@ -1,0 +1,18 @@
+# Image de PRODUCTION de l'API (utilisée par Render)
+# Différences avec le Dockerfile de développement :
+# - le TypeScript est compilé en JavaScript une fois pour toutes (npm run build) ;
+# - pas de rechargement automatique (tsx watch) : on lance directement node.
+FROM node:20-alpine
+
+WORKDIR /app
+
+COPY package*.json ./
+RUN npm ci
+
+COPY . .
+RUN npm run build
+
+ENV NODE_ENV=production
+EXPOSE 3000
+
+CMD ["node", "dist/index.js"]
