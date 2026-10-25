@@ -1,8 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useParams } from "react-router-dom";
 import "./portfolio.css";
-
-const API_URL = import.meta.env.VITE_API_URL ?? "http://localhost:3000";
+import { API_URL } from "./api";
 
 // Phrase affichée dans le badge du haut (à modifier quand tu auras trouvé ton stage !)
 const STATUS = "Disponible pour un stage";
@@ -97,17 +96,12 @@ const SECTIONS = [
 ];
 
 // L'utilisateur a-t-il demandé à réduire les animations (réglage d'accessibilité) ?
-const reduceMotion =
-  typeof window !== "undefined" &&
-  window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+const reduceMotion = typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
 // ---------- L'éditeur de code animé du haut de page ----------
 
 // Un "token" = un morceau de code avec sa couleur (mot-clé, texte, propriété...)
-type Token = {
-  kind: "kw" | "var" | "key" | "str" | "bool" | "punct";
-  text: string;
-};
+type Token = { kind: "kw" | "var" | "key" | "str" | "bool" | "punct"; text: string };
 
 function buildCode(p: Portfolio): Token[] {
   const langages = p.skills
@@ -136,9 +130,7 @@ function buildCode(p: Portfolio): Token[] {
       { kind: "punct", text: "[" },
       ...langages.flatMap((l, i) => [
         { kind: "str" as const, text: `"${l}"` },
-        ...(i < langages.length - 1
-          ? [{ kind: "punct" as const, text: ", " }]
-          : []),
+        ...(i < langages.length - 1 ? [{ kind: "punct" as const, text: ", " }] : []),
       ]),
       { kind: "punct", text: "]" },
     ]),
@@ -182,10 +174,7 @@ function CodeWindow({ tokens }: { tokens: Token[] }) {
       <pre className="editor-code">
         <code>
           {visible}
-          <span
-            className={`caret ${typed >= total ? "caret-done" : ""}`}
-            aria-hidden="true"
-          />
+          <span className={`caret ${typed >= total ? "caret-done" : ""}`} aria-hidden="true" />
         </code>
       </pre>
     </div>
@@ -206,12 +195,8 @@ export default function PublicPortfolio() {
     // l'API le sait et ne compte pas ta visite dans les statistiques
     fetch(`${API_URL}/api/public/${slug}`, { credentials: "include" })
       .then(async (response) => {
-        if (response.status === 404)
-          throw new Error("Ce portfolio n'existe pas ou est privé.");
-        if (!response.ok)
-          throw new Error(
-            "Le portfolio n'a pas pu être chargé. Vérifie que l'API est démarrée.",
-          );
+        if (response.status === 404) throw new Error("Ce portfolio n'existe pas ou est privé.");
+        if (!response.ok) throw new Error("Le portfolio n'a pas pu être chargé. Vérifie que l'API est démarrée.");
         return response.json();
       })
       .then(setPortfolio)
@@ -232,11 +217,9 @@ export default function PublicPortfolio() {
           }
         }
       },
-      { threshold: 0.12 },
+      { threshold: 0.12 }
     );
-    document
-      .querySelectorAll(".reveal")
-      .forEach((el) => revealObserver.observe(el));
+    document.querySelectorAll(".reveal").forEach((el) => revealObserver.observe(el));
 
     // La section au milieu de l'écran est surlignée dans le menu
     const sectionObserver = new IntersectionObserver(
@@ -245,7 +228,7 @@ export default function PublicPortfolio() {
           if (entry.isIntersecting) setActiveSection(entry.target.id);
         }
       },
-      { rootMargin: "-45% 0px -50% 0px" },
+      { rootMargin: "-45% 0px -50% 0px" }
     );
     SECTIONS.forEach(({ id }) => {
       const el = document.getElementById(id);
@@ -259,29 +242,20 @@ export default function PublicPortfolio() {
   }, [portfolio]);
 
   // useMemo : on ne recalcule le code de l'éditeur que si les données changent
-  const codeTokens = useMemo(
-    () => (portfolio ? buildCode(portfolio) : []),
-    [portfolio],
-  );
+  const codeTokens = useMemo(() => (portfolio ? buildCode(portfolio) : []), [portfolio]);
 
   if (error) return <main className="pf-status">{error}</main>;
-  if (!portfolio)
-    return <main className="pf-status">Chargement du portfolio…</main>;
+  if (!portfolio) return <main className="pf-status">Chargement du portfolio…</main>;
 
   const skillGroups = groupByCategory(portfolio.skills);
   const languages = skillGroups["langue"] ?? [];
   delete skillGroups["langue"]; // les langues ont leur propre affichage
 
-  const technicalCount = portfolio.skills.filter(
-    (s) => s.category !== "langue",
-  ).length;
+  const technicalCount = portfolio.skills.filter((s) => s.category !== "langue").length;
   const stats = [
     { value: portfolio.projects.length, label: "projets académiques" },
     { value: technicalCount, label: "langages, technologies et outils" },
-    {
-      value: portfolio.experiences.length,
-      label: "expériences et engagements",
-    },
+    { value: portfolio.experiences.length, label: "expériences et engagements" },
     { value: languages.length, label: "langues parlées" },
   ];
 
@@ -309,11 +283,7 @@ export default function PublicPortfolio() {
           >
             {menuOpen ? "Fermer" : "Menu"}
           </button>
-          <nav
-            id="nav-links"
-            className={`nav-links ${menuOpen ? "is-open" : ""}`}
-            aria-label="Sections"
-          >
+          <nav id="nav-links" className={`nav-links ${menuOpen ? "is-open" : ""}`} aria-label="Sections">
             {SECTIONS.map(({ id, label }) => (
               <a
                 key={id}
@@ -336,9 +306,7 @@ export default function PublicPortfolio() {
             {STATUS}
           </p>
           <h1>{portfolio.full_name}</h1>
-          {portfolio.headline && (
-            <p className="hero-headline">{portfolio.headline}</p>
-          )}
+          {portfolio.headline && <p className="hero-headline">{portfolio.headline}</p>}
           <div className="hero-actions">
             {portfolio.cv_available ? (
               <a className="btn btn-primary" href={cvUrl}>
@@ -384,18 +352,11 @@ export default function PublicPortfolio() {
               <h3 className="sub">Expériences</h3>
               <ol className="timeline">
                 {portfolio.experiences.map((exp) => (
-                  <li
-                    key={exp.id}
-                    className={!exp.end_date ? "is-current" : ""}
-                  >
-                    <p className="when">
-                      {formatPeriod(exp.start_date, exp.end_date)}
-                    </p>
+                  <li key={exp.id} className={!exp.end_date ? "is-current" : ""}>
+                    <p className="when">{formatPeriod(exp.start_date, exp.end_date)}</p>
                     <h4>{exp.position}</h4>
                     <p className="where">{exp.company}</p>
-                    {exp.description && (
-                      <p className="desc">{exp.description}</p>
-                    )}
+                    {exp.description && <p className="desc">{exp.description}</p>}
                   </li>
                 ))}
               </ol>
@@ -404,18 +365,11 @@ export default function PublicPortfolio() {
               <h3 className="sub">Formations</h3>
               <ol className="timeline">
                 {portfolio.education.map((edu) => (
-                  <li
-                    key={edu.id}
-                    className={!edu.end_date ? "is-current" : ""}
-                  >
-                    <p className="when">
-                      {formatPeriod(edu.start_date, edu.end_date)}
-                    </p>
+                  <li key={edu.id} className={!edu.end_date ? "is-current" : ""}>
+                    <p className="when">{formatPeriod(edu.start_date, edu.end_date)}</p>
                     <h4>{edu.degree}</h4>
                     <p className="where">{edu.school}</p>
-                    {edu.description && (
-                      <p className="desc">{edu.description}</p>
-                    )}
+                    {edu.description && <p className="desc">{edu.description}</p>}
                   </li>
                 ))}
               </ol>
@@ -443,20 +397,12 @@ export default function PublicPortfolio() {
                     {(project.repo_url || project.demo_url) && (
                       <p className="project-links">
                         {project.repo_url && (
-                          <a
-                            href={project.repo_url}
-                            target="_blank"
-                            rel="noreferrer"
-                          >
+                          <a href={project.repo_url} target="_blank" rel="noreferrer">
                             Voir le code
                           </a>
                         )}
                         {project.demo_url && (
-                          <a
-                            href={project.demo_url}
-                            target="_blank"
-                            rel="noreferrer"
-                          >
+                          <a href={project.demo_url} target="_blank" rel="noreferrer">
                             Voir la démo
                           </a>
                         )}
@@ -491,16 +437,9 @@ export default function PublicPortfolio() {
                     <li key={lang.id}>
                       <span>{lang.name}</span>
                       {lang.level && (
-                        <span
-                          className="meter"
-                          role="img"
-                          aria-label={`Niveau ${lang.level} sur 5`}
-                        >
+                        <span className="meter" role="img" aria-label={`Niveau ${lang.level} sur 5`}>
                           {[1, 2, 3, 4, 5].map((n) => (
-                            <span
-                              key={n}
-                              className={n <= (lang.level ?? 0) ? "on" : ""}
-                            />
+                            <span key={n} className={n <= (lang.level ?? 0) ? "on" : ""} />
                           ))}
                         </span>
                       )}
@@ -543,8 +482,7 @@ export default function PublicPortfolio() {
       </main>
 
       <footer className="footer">
-        © {new Date().getFullYear()} {portfolio.full_name}. Fait avec React,
-        Express et PostgreSQL par {firstName}.
+        © {new Date().getFullYear()} {portfolio.full_name}. Fait avec React, Express et PostgreSQL par {firstName}.
       </footer>
     </div>
   );
