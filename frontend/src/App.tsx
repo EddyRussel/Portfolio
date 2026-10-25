@@ -1,43 +1,19 @@
-import { useEffect, useState } from "react";
-import { Routes, Route, Link } from "react-router-dom";
+import { Navigate, Route, Routes } from "react-router-dom";
 import PublicPortfolio from "./PublicPortfolio";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Dashboard from "./pages/Dashboard";
 import RequireAuth from "./RequireAuth";
-import { API_URL } from "./api";
 
-type Health = { status: string; postgres?: string; redis?: string };
-
-function Home() {
-  const [health, setHealth] = useState<Health | null>(null);
-
-  useEffect(() => {
-    fetch(`${API_URL}/api/health`)
-      .then((r) => r.json())
-      .then(setHealth)
-      .catch(() => setHealth({ status: "error" }));
-  }, []);
-
-  return (
-    <main style={{ fontFamily: "sans-serif", maxWidth: 720, margin: "2rem auto" }}>
-      <h1>Portfolio de Eddy Russel</h1>
-      <p>Socle de départ : React + Vite + Express + PostgreSQL + Redis.</p>
-      <h2>État des services</h2>
-      <pre>{JSON.stringify(health, null, 2)}</pre>
-      <p>
-        <Link to="/p/eddy-russel-ngoue">Voir mon portfolio</Link>
-        {" · "}
-        <Link to="/login">Se connecter</Link>
-      </p>
-    </main>
-  );
-}
+// Le portfolio affiché quand on arrive sur l'adresse principale du site.
+// (Modifiable sans toucher au code avec la variable d'environnement VITE_HOME_SLUG.)
+const HOME_SLUG = import.meta.env.VITE_HOME_SLUG ?? "eddy-russel-ngoue";
 
 export default function App() {
   return (
     <Routes>
-      <Route path="/" element={<Home />} />
+      {/* L'adresse principale mène directement au portfolio */}
+      <Route path="/" element={<Navigate to={`/p/${HOME_SLUG}`} replace />} />
       <Route path="/p/:slug" element={<PublicPortfolio />} />
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
@@ -50,6 +26,8 @@ export default function App() {
           </RequireAuth>
         }
       />
+      {/* Toute adresse inconnue renvoie aussi au portfolio */}
+      <Route path="*" element={<Navigate to={`/p/${HOME_SLUG}`} replace />} />
     </Routes>
   );
 }
