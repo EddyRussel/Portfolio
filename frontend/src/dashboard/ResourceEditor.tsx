@@ -3,7 +3,7 @@ import { api } from "../api";
 import FormField from "./FormField";
 import ImageUpload from "./ImageUpload";
 import type { ImageSummary } from "./imageApi";
-import type { Item, ResourceConfig } from "./fields";
+import { fromFieldValue, toFieldValue, type Item, type ResourceConfig } from "./fields";
 
 // ---------------------------------------------------------------------------
 // Éditeur générique : liste + ajout + modification + suppression + réordonnancement.
@@ -16,27 +16,18 @@ type FormValues = Record<string, string>;
 // Élément de l'API -> valeurs du formulaire (tout en texte)
 function toForm(config: ResourceConfig, item?: Item): FormValues {
   const values: FormValues = {};
-  for (const field of config.fields) {
-    const raw = item?.[field.name];
-    if (field.type === "tags") values[field.name] = Array.isArray(raw) ? raw.join(", ") : "";
-    else values[field.name] = raw === null || raw === undefined ? "" : String(raw);
-  }
+  for (const field of config.fields) values[field.name] = toFieldValue(field, item?.[field.name]);
+  // Nouvel élément : un menu obligatoire commence sur sa première option (ex. "Emploi")
+  for (const field of config.fields)
+    if (!item && field.type === "select" && field.required && field.options)
+      values[field.name] = field.options[0].value;
   return values;
 }
 
 // Valeurs du formulaire -> données envoyées à l'API
 function toPayload(config: ResourceConfig, values: FormValues): Record<string, unknown> {
   const payload: Record<string, unknown> = {};
-  for (const field of config.fields) {
-    const value = values[field.name] ?? "";
-    payload[field.name] =
-      field.type === "tags"
-        ? value
-            .split(",")
-            .map((t) => t.trim())
-            .filter(Boolean)
-        : value;
-  }
+  for (const field of config.fields) payload[field.name] = fromFieldValue(field, values[field.name] ?? "");
   return payload;
 }
 

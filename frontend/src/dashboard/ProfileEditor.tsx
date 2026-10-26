@@ -4,16 +4,37 @@ import { useAuth } from "../auth";
 import FormField from "./FormField";
 import ImageUpload from "./ImageUpload";
 import type { ImageSummary } from "./imageApi";
-import type { Field } from "./fields";
+import { fromFieldValue, toFieldValue, type Field } from "./fields";
 
-type Profile = Record<string, string | boolean | null> & { is_public: boolean; slug: string };
+type Profile = Record<string, unknown> & { is_public: boolean; slug: string };
 
 const PROFILE_FIELDS: Field[] = [
   { name: "full_name", label: "Nom complet", type: "text", required: true },
   { name: "headline", label: "Titre professionnel", type: "text" },
+  {
+    name: "tagline",
+    label: "Accroche",
+    type: "text",
+    hint: "La phrase sous ton nom, ex. : Je transforme des idées en applications qui fonctionnent.",
+    wide: true,
+  },
   { name: "city", label: "Ville", type: "text" },
   { name: "phone", label: "Téléphone", type: "text", hint: "Privé : n'apparaît pas sur ton portfolio public." },
   { name: "bio", label: "Présentation", type: "textarea", wide: true },
+  {
+    name: "looking_for",
+    label: "Je cherche",
+    type: "text",
+    hint: "Ex. : Un stage en développement logiciel, à Montréal",
+  },
+  { name: "interests", label: "En dehors du code", type: "tags", hint: "Sépare-les par des virgules : Foot, Musique" },
+  {
+    name: "qualities",
+    label: "Mes qualités",
+    type: "pairs",
+    hint: "Une par ligne, au format « Titre : explication ». Ex. : Curieux : J'apprends vite…",
+    wide: true,
+  },
   { name: "linkedin_url", label: "LinkedIn", type: "url" },
   { name: "github_url", label: "GitHub", type: "url" },
   { name: "website_url", label: "Site web", type: "url" },
@@ -39,7 +60,7 @@ export default function ProfileEditor() {
       .then((data) => {
         setProfile(data);
         const initial: Record<string, string> = {};
-        for (const f of PROFILE_FIELDS) initial[f.name] = (data[f.name] as string | null) ?? "";
+        for (const f of PROFILE_FIELDS) initial[f.name] = toFieldValue(f, data[f.name]);
         setValues(initial);
       })
       .catch((err: Error) => setError(err.message));
@@ -52,7 +73,9 @@ export default function ProfileEditor() {
     setError(null);
     setNotice(null);
     try {
-      await api("/api/profile", { method: "PUT", body: values });
+      const body: Record<string, unknown> = {};
+      for (const f of PROFILE_FIELDS) body[f.name] = fromFieldValue(f, values[f.name] ?? "");
+      await api("/api/profile", { method: "PUT", body });
       await refreshUser(); // le nom a peut-être changé : on met à jour l'en-tête
       setNotice("Profil enregistré.");
     } catch (err) {

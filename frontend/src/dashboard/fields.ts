@@ -2,7 +2,10 @@
 // Le composant ResourceEditor lit cette description pour fabriquer le formulaire :
 // pour ajouter un champ, il suffit de l'ajouter ici (et dans la validation de l'API).
 
-export type FieldType = "text" | "textarea" | "month" | "url" | "select" | "tags";
+// tags  : liste séparée par des virgules   -> ["Java", "SQL"]
+// lines : un élément par ligne               -> ["Connexion sécurisée", "CV en PDF"]
+// pairs : "Titre : texte", un par ligne      -> [{ title: "Curieux", text: "J'apprends vite." }]
+export type FieldType = "text" | "textarea" | "month" | "url" | "select" | "tags" | "lines" | "pairs";
 
 export type Field = {
   name: string; // nom de la colonne dans l'API
@@ -27,11 +30,45 @@ export type ResourceConfig = {
   subtitle: (item: Item) => string; // ligne secondaire
 };
 
+type Pair = { title: string; text: string };
+
+// Valeur de l'API -> texte affiché dans le champ du formulaire
+export function toFieldValue(field: Field, raw: unknown): string {
+  if (field.type === "tags") return Array.isArray(raw) ? raw.join(", ") : "";
+  if (field.type === "lines") return Array.isArray(raw) ? raw.join("\n") : "";
+  if (field.type === "pairs")
+    return Array.isArray(raw)
+      ? (raw as Pair[]).map((p) => (p.text ? `${p.title} : ${p.text}` : p.title)).join("\n")
+      : "";
+  return raw === null || raw === undefined ? "" : String(raw);
+}
+
+// Texte du champ -> valeur envoyée à l'API
+export function fromFieldValue(field: Field, value: string): unknown {
+  const parts = (separator: string) =>
+    value
+      .split(separator)
+      .map((t) => t.trim())
+      .filter(Boolean);
+  if (field.type === "tags") return parts(",");
+  if (field.type === "lines") return parts("\n");
+  if (field.type === "pairs")
+    return parts("\n").map((line) => {
+      const colon = line.indexOf(":"); // tout ce qui est avant le premier ":" est le titre
+      return colon === -1
+        ? { title: line, text: "" }
+        : { title: line.slice(0, colon).trim(), text: line.slice(colon + 1).trim() };
+    });
+  return value;
+}
+
 // "2026-05" -> "mai 2026"
 function month(value: unknown): string {
   if (typeof value !== "string" || !value) return "aujourd'hui";
   return new Date(`${value}-01T12:00:00`).toLocaleDateString("fr-CA", { month: "long", year: "numeric" });
 }
+
+const KIND_LABELS: Record<string, string> = { emploi: "Emploi", stage: "Stage", benevolat: "Bénévolat" };
 
 const dateFields: Field[] = [
   { name: "start_date", label: "Début", type: "month", required: true },
@@ -46,11 +83,25 @@ export const RESOURCES: Record<string, ResourceConfig> = {
     fields: [
       { name: "position", label: "Poste", type: "text", required: true },
       { name: "company", label: "Entreprise ou organisme", type: "text", required: true },
+      {
+        name: "kind",
+        label: "Type",
+        type: "select",
+        required: true,
+        hint: "Le bénévolat s'affiche sur une voie à part.",
+        options: [
+          { value: "emploi", label: "Emploi" },
+          { value: "stage", label: "Stage" },
+          { value: "benevolat", label: "Bénévolat" },
+        ],
+      },
+      { name: "employment_type", label: "Type de poste", type: "text", hint: "Ex. : temps plein · saisonnier" },
       ...dateFields,
       { name: "description", label: "Description", type: "textarea", wide: true },
     ],
     title: (i) => String(i.position),
-    subtitle: (i) => `${i.company} — ${month(i.start_date)} à ${month(i.end_date)}`,
+    subtitle: (i) =>
+      `${KIND_LABELS[String(i.kind)] ?? ""} · ${i.company} — ${month(i.start_date)} à ${month(i.end_date)}`,
   },
   education: {
     path: "/api/education",
@@ -61,6 +112,13 @@ export const RESOURCES: Record<string, ResourceConfig> = {
       { name: "school", label: "Établissement", type: "text", required: true },
       ...dateFields,
       { name: "description", label: "Description", type: "textarea", wide: true },
+      {
+        name: "topics",
+        label: "Matières principales",
+        type: "tags",
+        hint: "Sépare-les par des virgules : java, csharp, python, sql, uml",
+        wide: true,
+      },
     ],
     title: (i) => String(i.degree),
     subtitle: (i) => `${i.school} — ${month(i.start_date)} à ${month(i.end_date)}`,
@@ -108,8 +166,16 @@ export const RESOURCES: Record<string, ResourceConfig> = {
     singular: "un projet",
     empty: "Aucun projet pour l'instant. Ajoute un projet scolaire ou personnel.",
     fields: [
-      { name: "title", label: "Titre", type: "text", required: true, wide: true },
-      { name: "description", label: "Description", type: "textarea", wide: true },
+      { name: "title", label: "Titre", type: "text", required: true },
+      { name: "context", label: "Contexte", type: "text", hint: "Ex. : Projet académique · Collège LaSalle" },
+      { name: "description", label: "Description", type: "textarea", hint: "Une ou deux phrases.", wide: true },
+      {
+        name: "highlights",
+        label: "Ce que j'ai fait",
+        type: "lines",
+        hint: "Une réalisation par ligne.",
+        wide: true,
+      },
       {
         name: "technologies",
         label: "Technologies",

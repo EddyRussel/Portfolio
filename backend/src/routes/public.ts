@@ -68,6 +68,8 @@ publicRouter.get("/:slug", async (req, res) => {
   const userResult = await pool.query(
     `SELECT u.id, u.slug, u.email, p.full_name, p.headline, p.bio, p.city,
             p.linkedin_url, p.github_url, p.website_url, p.photo_url,
+            p.tagline, p.looking_for,
+            COALESCE(p.interests, '{}') AS interests, COALESCE(p.qualities, '[]') AS qualities,
             COALESCE(cv.is_public, FALSE) AS cv_available,
             extract(epoch FROM ph.updated_at)::bigint AS photo_version
        FROM users u
@@ -88,7 +90,7 @@ publicRouter.get("/:slug", async (req, res) => {
   // 3. On récupère les 4 sections en parallèle (Promise.all = en même temps)
   const [experiences, education, skills, projects] = await Promise.all([
     pool.query(
-      `SELECT id, position, company,
+      `SELECT id, position, company, kind, employment_type,
               to_char(start_date, 'YYYY-MM') AS start_date,
               to_char(end_date, 'YYYY-MM') AS end_date,
               description
@@ -99,7 +101,7 @@ publicRouter.get("/:slug", async (req, res) => {
       `SELECT id, degree, school,
               to_char(start_date, 'YYYY-MM') AS start_date,
               to_char(end_date, 'YYYY-MM') AS end_date,
-              description
+              description, topics
          FROM education WHERE user_id = $1 ORDER BY sort_order`,
       [userId]
     ),
@@ -109,7 +111,7 @@ publicRouter.get("/:slug", async (req, res) => {
       [userId]
     ),
     pool.query(
-      `SELECT p.id, p.title, p.description, p.technologies, p.repo_url, p.demo_url, p.image_url,
+      `SELECT p.id, p.title, p.context, p.description, p.highlights, p.technologies, p.repo_url, p.demo_url, p.image_url,
               extract(epoch FROM i.updated_at)::bigint AS image_version
          FROM projects p
          LEFT JOIN images i ON i.project_id = p.id AND i.kind = 'project'

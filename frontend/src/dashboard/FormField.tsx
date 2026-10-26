@@ -26,12 +26,8 @@ export default function FormField({
         {field.required && <span aria-hidden="true"> *</span>}
       </label>
 
-      {field.type === "textarea" ? (
-        <textarea
-          {...common}
-          rows={4}
-          onChange={(e) => onChange(e.target.value)}
-        />
+      {field.type === "textarea" || field.type === "lines" || field.type === "pairs" ? (
+        <textarea {...common} rows={field.type === "textarea" ? 4 : 5} onChange={(e) => onChange(e.target.value)} />
       ) : field.type === "select" ? (
         <select {...common} onChange={(e) => onChange(e.target.value)}>
           {!field.required ? null : <option value="">Choisir…</option>}
@@ -44,20 +40,8 @@ export default function FormField({
       ) : (
         <input
           {...common}
-          type={
-            field.type === "month"
-              ? "month"
-              : field.type === "url"
-                ? "url"
-                : "text"
-          }
-          placeholder={
-            field.type === "month"
-              ? "AAAA-MM"
-              : field.type === "url"
-                ? "https://"
-                : undefined
-          }
+          type={field.type === "month" ? "month" : field.type === "url" ? "url" : "text"}
+          placeholder={field.type === "month" ? "AAAA-MM" : field.type === "url" ? "https://" : undefined}
           onChange={(e) => onChange(e.target.value)}
         />
       )}
