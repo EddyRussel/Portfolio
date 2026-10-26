@@ -25,6 +25,20 @@ const MIGRATIONS = [
      cv_downloads     INT NOT NULL DEFAULT 0,
      PRIMARY KEY (user_id, day)
    )`,
+  // 003 : images téléversées (photo de profil, captures d'écran des projets)
+  `CREATE TABLE IF NOT EXISTS images (
+     id          SERIAL PRIMARY KEY,
+     user_id     INT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+     project_id  INT REFERENCES projects(id) ON DELETE CASCADE,
+     kind        VARCHAR(20) NOT NULL CHECK (kind IN ('photo', 'project')),
+     mime        VARCHAR(30) NOT NULL,
+     size_bytes  INT NOT NULL,
+     data        BYTEA NOT NULL,
+     updated_at  TIMESTAMPTZ NOT NULL DEFAULT NOW()
+   )`,
+  // Une seule photo par utilisateur, une seule capture par projet (index "partiels")
+  `CREATE UNIQUE INDEX IF NOT EXISTS images_one_photo ON images (user_id) WHERE kind = 'photo'`,
+  `CREATE UNIQUE INDEX IF NOT EXISTS images_one_per_project ON images (project_id) WHERE kind = 'project'`,
 ];
 
 export async function runMigrations(): Promise<void> {

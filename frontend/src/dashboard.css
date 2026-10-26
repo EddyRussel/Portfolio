@@ -720,3 +720,75 @@
     transition: none;
   }
 }
+
+/* ==========================================================
+   Images (photo de profil, captures d'écran)
+   ========================================================== */
+.image-upload {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.image-frame {
+  background: var(--bg);
+  border: 1px dashed var(--line);
+  border-radius: 12px;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--muted);
+  font-size: 0.9rem;
+  text-align: center;
+}
+.image-frame img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.image-portrait {
+  width: 180px;
+  aspect-ratio: 4 / 5;
+}
+.image-wide {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+}
+.image-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.image-upload.is-compact {
+  flex: 0 0 150px;
+  gap: 6px;
+}
+.image-upload.is-compact .image-frame {
+  border-radius: 8px;
+  font-size: 0.8rem;
+}
+.image-upload.is-compact .btn-ghost,
+.image-upload.is-compact .btn-danger {
+  padding: 4px 8px;
+  font-size: 0.82rem;
+}
+.photo-block {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 24px;
+  align-items: flex-start;
+  padding: 18px;
+  margin-bottom: 24px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+}
+.photo-block h2 {
+  margin: 0 0 6px;
+  font-size: 1.15rem;
+}
+.photo-block .muted {
+  margin: 0;
+  max-width: 46ch;
+}

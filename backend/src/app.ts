@@ -13,6 +13,7 @@ import { profileRouter } from "./routes/profile.js";
 import { accountRouter } from "./routes/account.js";
 import { cvFileRouter } from "./routes/cvFile.js";
 import { statsRouter } from "./routes/stats.js";
+import { imagesRouter } from "./routes/images.js";
 import { experiencesRouter, educationRouter, skillsRouter, projectsRouter } from "./routes/content.js";
 
 // ---------------------------------------------------------------------------
@@ -41,6 +42,7 @@ app.use("/api/profile", profileRouter);
 app.use("/api/account", accountRouter);
 app.use("/api/cv-file", cvFileRouter);
 app.use("/api/stats", statsRouter);
+app.use("/api/images", imagesRouter);
 app.use("/api/experiences", experiencesRouter);
 app.use("/api/education", educationRouter);
 app.use("/api/skills", skillsRouter);
